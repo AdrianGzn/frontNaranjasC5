@@ -1,0 +1,1 @@
+import Caja from "../domain/caja.entity";
