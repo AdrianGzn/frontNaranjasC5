@@ -1,8 +1,5 @@
-export interface Box {
+export interface Lote {
     id: number
     fecha: Date | string
-    peso_total: number
-    precio: number
-    lote_fk: number
-    encargado_fk: number
+    observaciones: number
 }
