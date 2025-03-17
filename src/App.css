@@ -40,3 +40,15 @@
 .read-the-docs {
   color: #888;
 } */
+
+
+.p-selectbutton .p-button-label {
+  font-size: 10px !important;
+}
+
+.p-datatable .p-paginator .p-paginator-pages .p-paginator-page {
+  font-size: 11px !important;
+}
+.p-datatable .p-paginator .p-dropdown .p-dropdown-label {
+  font-size: 11px !important;
+}
