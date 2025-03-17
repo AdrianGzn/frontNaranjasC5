@@ -33,18 +33,14 @@ export const Login = () => {
                 navigate("/home");
             } catch (error) {
                 setLoading(false);
-                console.log(error);
-                
-                if (error === "Unauthorized") {
-                    toast.current?.show({severity:'error', summary: 'Error', detail:'Message Content', life: 3000});
-                }
-                
+                toast.current?.show({ severity: 'error', summary: 'Error', detail: `${error}` });
             }
         }
     };
 
     return (
         <main className="flex flex-col items-center justify-center h-screen">
+            <Toast ref={toast} />
             <section className="flex flex-col items-center justify-center p-4 shadow-lg rounded-xl bg-white" style={{ width: '350px' }}>
                 <h1 className="text-3xl font-bold mb-5">Login</h1>
                 <form onSubmit={handleLogin} className="w-full">
@@ -97,5 +93,6 @@ export const Login = () => {
                 </form>
             </section>
         </main>
+
     );
 };
