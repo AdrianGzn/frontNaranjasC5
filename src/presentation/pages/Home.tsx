@@ -1,4 +1,5 @@
 import {useNavigate} from "react-router-dom";
+import { Button } from "primereact/button";
 
 export const Home = () => {
     const navigate = useNavigate();
@@ -6,8 +7,7 @@ export const Home = () => {
         <main>
             <section>
                 <h1>Home</h1>
-                <button onClick={() => navigate("/")}>Log out</button>
-                
+                <Button label="Log out" onClick={() => navigate("/")} />
             </section>
         </main>
     );

@@ -1,4 +1,7 @@
 @import "tailwindcss";
+@import "primereact/resources/themes/tailwind-light/theme.css";
+@import "primeicons/primeicons.css";
+
 
 body {
   margin: 0;
