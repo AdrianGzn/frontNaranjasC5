@@ -1,3 +1,8 @@
 export interface LoginResponse {
-    token: string;
+    success: boolean;
+    token?: string;
+    error?: {
+        message: string;
+        statusCode: number;
+    };
 }

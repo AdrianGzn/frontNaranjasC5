@@ -25,7 +25,7 @@ export class ApiUserRepository implements IUserRepository {
             body: JSON.stringify(login),
             headers: this.headers,
         });
-        if (!response.ok) throw new Error("Error al iniciar sesión");
+        if (!response.ok) throw new Error(response.statusText);
         return response.json();
     }
 
