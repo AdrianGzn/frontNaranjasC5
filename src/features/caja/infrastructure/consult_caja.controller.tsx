@@ -1,4 +1,3 @@
-// src/ui/controllers/useGetCajas.ts
 import { useEffect, useState } from "react";
 import { ConsultCajas } from "../application/consult_cajas.usecase";
 import ICaja from "../domain/caja.repository";

@@ -7,4 +7,5 @@ export default interface Caja {
     hora_fin: Date | string
     lote_fk: number
     encargado_fk: number
+    cantidad: number
 }
