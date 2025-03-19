@@ -1,32 +1,52 @@
 import { useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
-import { Message } from "primereact/message";
+// import { Message } from "primereact/message";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { Password } from "primereact/password";
+import { ApiUserRepository } from "../../features/users/infrastructure/apiUser.repository";
+import { LoginUserUseCase } from "../../features/users/application/LoginUserUseCase";
+// import { LoginRequest } from "../../features/users/domain/LoginRequest";
+import { Toast } from "primereact/toast";
+// import LoginController from "../../features/users/infrastructure/controllers/LoginController";
 
 export const Login = () => {
     const navigate = useNavigate();
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
     const [submitted, setSubmitted] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const userRepository = new ApiUserRepository();
+    const loginUseCase = new LoginUserUseCase(userRepository);
+    const toast = useRef<Toast>(null);
 
-    const handleLogin = (e : any) => {
+    const handleLogin = async (e: any) => {
         e.preventDefault();
         setSubmitted(true);
 
         if (username && password) {
-            navigate("/home");
+            setLoading(true);
+            try {
+                const response = await loginUseCase.login({ username, password });
+                localStorage.setItem('token', response.token ?? '');
+                setLoading(false);
+                navigate("/home");
+            } catch (error) {
+                setLoading(false);
+                toast.current?.show({ severity: 'error', summary: 'Error', detail: `${error}` });
+            }
         }
     };
 
     return (
         <main className="flex flex-col items-center justify-center h-screen">
+            <Toast ref={toast} />
             <section className="flex flex-col items-center justify-center p-4 shadow-lg rounded-xl bg-white" style={{ width: '350px' }}>
                 <h1 className="text-3xl font-bold mb-5">Login</h1>
                 <form onSubmit={handleLogin} className="w-full">
                     <div className="flex flex-col gap-4">
                         <div className="flex flex-col">
+
                             <span className="p-float-label mb-1">
                                 <InputText
                                     id="username"
@@ -49,9 +69,8 @@ export const Login = () => {
                                 <Password
                                     id="password"
                                     value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    toggleMask
                                     feedback={false}
+                                    onChange={(e) => setPassword(e.target.value)}
                                     className={submitted && !password ? 'p-invalid w-full' : 'w-full'}
                                 />
                                 <label htmlFor="password">Password</label>
@@ -68,10 +87,12 @@ export const Login = () => {
                             type="submit"
                             label="Login"
                             className="mt-3"
+                            loading={loading}
                         />
                     </div>
                 </form>
             </section>
         </main>
+
     );
 };
