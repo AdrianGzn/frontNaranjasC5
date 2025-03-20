@@ -4,7 +4,7 @@ import ILote from "../domain/lote.repository";
 import APIRepositoryLote from "./apiLote.repository";
 import { Lote } from "../domain/lote.entity";
 
-export default function useCreateLote() {
+export default function useCreateLote(loteNuevo: Lote) {
   const [lote, setLote] = useState<Lote>();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -14,7 +14,7 @@ export default function useCreateLote() {
     const createLoteUsecase = new CreateLote(repository);
 
     createLoteUsecase
-      .execute()
+      .execute(loteNuevo)
       .then(setLote)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));

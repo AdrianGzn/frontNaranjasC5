@@ -2,10 +2,9 @@ import { useEffect, useState } from "react";
 import { DeleteLote } from "../application/delete_lote.usecase";
 import ILote from "../domain/lote.repository";
 import APIRepositoryLote from "./apiLote.repository";
-import ResponseDeleteLote from "../domain/response_delete_lote";
 
 export default function useDeleteLote(id: number) {
-  const [response, setResponse] = useState<ResponseDeleteLote>();
+  const [response, setResponse] = useState<any>();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 

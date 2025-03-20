@@ -8,7 +8,7 @@ export class CreateLote {
     this.repository = repository;
   }
 
-  async execute(): Promise<Lote> {
-    return await this.repository.Create();
+  async execute(lote: Lote): Promise<Lote> {
+    return await this.repository.Create(lote);
   }
 }
