@@ -1,20 +1,20 @@
 import ICaja from "../domain/caja.repository";
 import Caja from "../domain/caja.entity";
-import ResponseDeleteCaja from "../domain/response_delete_caja";
-import ResponseUpdateCaja from "../domain/response_update_caja";
 
 export default class APIRepositoryCaja implements ICaja {
   private cajasURL = `${import.meta.env.API_URL}/cajas`;
 
-  async Create(): Promise<Caja> {
+  async Create(caja: Caja): Promise<Caja> {
     const response = await fetch(`${this.cajasURL}`, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(caja),
     });
     if (!response.ok) throw new Error("Error al crear la caja");
     return response.json();
   }
 
-  async Asign(id: number, caja: Caja): Promise<ResponseUpdateCaja> {
+  async Asign(id: number, caja: Caja): Promise<Caja> {
     const response = await fetch(`${this.cajasURL}/${id}`, {
       method: "PUT",
       body: JSON.stringify(caja),
@@ -36,7 +36,7 @@ export default class APIRepositoryCaja implements ICaja {
     return response.json();
   }
 
-  async Delete(id: number): Promise<ResponseDeleteCaja> {
+  async Delete(id: number): Promise<any> {
     const response = await fetch(`${this.cajasURL}/${id}`, {
       method: "DELETE",
     });

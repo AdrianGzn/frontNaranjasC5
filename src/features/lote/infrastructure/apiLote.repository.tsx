@@ -1,20 +1,20 @@
 import ILote from "../domain/lote.repository";
 import { Lote } from "../domain/lote.entity";
-import ResponseDeleteLote from "../domain/response_delete_lote";
-import ResponseUpdateLote from "../domain/response_update_lote";
 
 export default class APIRepositoryLote implements ILote {
   private cajasURL = `${import.meta.env.API_URL}/lotes`;
 
-  async Create(): Promise<Lote> {
+  async Create(lote: Lote): Promise<Lote> {
     const response = await fetch(`${this.cajasURL}`, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(lote),
     });
     if (!response.ok) throw new Error("Error al crear el lote");
     return response.json();
   }
 
-  async Update(id: number, lote: Lote): Promise<ResponseUpdateLote> {
+  async Update(id: number, lote: Lote): Promise<Lote> {
     const response = await fetch(`${this.cajasURL}/${id}`, {
       method: "PUT",
       body: JSON.stringify(lote),
@@ -36,7 +36,7 @@ export default class APIRepositoryLote implements ILote {
     return response.json();
   }
 
-  async Delete(id: number): Promise<ResponseDeleteLote> {
+  async Delete(id: number): Promise<any> {
     const response = await fetch(`${this.cajasURL}/${id}`, {
       method: "DELETE",
     });
