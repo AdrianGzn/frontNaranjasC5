@@ -11,7 +11,7 @@ export class ApiUserRepository implements IUserRepository {
     };
 
     async Create(user : User): Promise<User> {
-        const response = await fetch(`${this.usersURL}`, {
+        const response = await fetch(`${this.usersURL}/`, {
             method: "POST",
             body: JSON.stringify(user),
             headers: this.headers,
