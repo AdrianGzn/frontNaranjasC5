@@ -7,7 +7,7 @@ import TableCajas from "../components/tableCajas.component";
 import Caja from "../../domain/caja.entity";
 import AddCajas from "../components/cajasCargando.component";
 import CajasCargando from "../components/cajaCargar.component";
-
+import { useWebSocket } from "../../../../shared/hooks/websocket.provider";
 
 export default function CreateNewCajas() {
   const [size, setSize] = useState<'small' | 'large' | 'normal' | undefined>('small');
@@ -38,6 +38,24 @@ export default function CreateNewCajas() {
       { id: 3, descripción: 'Caja 1', peso_total: 100, precio: 10, hora_inicio: '', hora_fin: '', lote_fk: 1, encargado_fk: 1, cantidad: 100 }
     ]);
   }, []);
+
+
+  //para el websocket
+  const {ws}: any = useWebSocket();
+  useEffect(() => {
+    if (ws) {
+      const handleMessage = (event: any) => {
+        const message = JSON.parse(event.data);
+        console.log('Mensaje recibido:\n', message);
+        //aquí se pueden implementar otras acciones
+      };
+      ws.addEventListener('message', handleMessage);
+
+      return () => {
+        ws.removeEventListener('message', handleMessage);
+      };
+    }
+  }, [ws]);
 
   return (
     <div className="w-full h-screen">
