@@ -1,17 +1,16 @@
 import { useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
-// import { Message } from "primereact/message";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { Password } from "primereact/password";
 import { ApiUserRepository } from "../../features/users/infrastructure/apiUser.repository";
 import { LoginUserUseCase } from "../../features/users/application/LoginUserUseCase";
 import { CreateUserUseCase } from "../../features/users/application/CreateUserUseCase";
-// import { LoginRequest } from "../../features/users/domain/LoginRequest";
 import { Toast } from "primereact/toast";
 import { Dialog } from "primereact/dialog";
 import { User } from "../../features/users/domain/user.entity";
 import { Dropdown } from "primereact/dropdown";
+import { AuthService } from "../../shared/hooks/auth_user.service";
 
 export const Login = () => {
     const navigate = useNavigate();
@@ -29,6 +28,7 @@ export const Login = () => {
     const [registerLoading, setRegisterLoading] = useState(false);
     const [registerName, setRegisterName] = useState('');
     const [registerUsername, setRegisterUsername] = useState('');
+    const [registerEmail, setRegisterEmail] = useState(''); // Nuevo estado para email
     const [registerPassword, setRegisterPassword] = useState('');
     const [registerRol, setRegisterRol] = useState('');
 
@@ -37,6 +37,15 @@ export const Login = () => {
         { label: 'Recolector', value: 'recolector' }
     ];
 
+    // Validar email con expresión regular
+    const validateEmail = (email: string) => {
+        return String(email)
+            .toLowerCase()
+            .match(
+                /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+            );
+    };
+
     const handleLogin = async (e: any) => {
         e.preventDefault();
         setSubmitted(true);
@@ -44,13 +53,36 @@ export const Login = () => {
         if (username && password) {
             setLoading(true);
             try {
+                console.log("Intentando login con:", { username, password });
                 const response = await loginUseCase.login({ username, password });
-                localStorage.setItem('token', response.token ?? '');
-                setLoading(false);
-                navigate("/home");
+                console.log("Respuesta:", response);
+
+                if (response.token && response.user) {
+                    AuthService.saveUserData(response.token, response.user);
+
+                    toast.current?.show({
+                        severity: 'success',
+                        summary: 'Éxito',
+                        detail: 'Inicio de sesión exitoso'
+                    });
+
+                    navigate("/home");
+                } else {
+                    toast.current?.show({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Credenciales inválidas o respuesta incompleta'
+                    });
+                }
             } catch (error) {
+                console.error("Error completo:", error);
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: `${error}`
+                });
+            } finally {
                 setLoading(false);
-                toast.current?.show({ severity: 'error', summary: 'Error', detail: `${error}` });
             }
         }
     };
@@ -59,33 +91,59 @@ export const Login = () => {
         e.preventDefault();
         setRegisterSubmitted(true);
 
-        if (registerName && registerUsername && registerPassword && registerRol) {
-            setRegisterLoading(true);
-            try {
-                const newUser: User = {
-                    id: 0, // El ID se asignará en el servidor
-                    name: registerName,
-                    username: registerUsername,
-                    password: registerPassword,
-                    rol: registerRol
-                };
+        // Validar que todos los campos requeridos estén completos
+        if (!registerName || !registerUsername || !registerPassword || !registerRol) {
+            return;
+        }
 
-                await createUserUseCase.execute(newUser);
-                setRegisterLoading(false);
-                toast.current?.show({ severity: 'success', summary: 'Éxito', detail: 'Usuario registrado correctamente' });
-                setVisible(false);
+        // Validar formato de email si se proporcionó
+        if (registerEmail && !validateEmail(registerEmail)) {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'El formato del email no es válido'
+            });
+            return;
+        }
 
-                setRegisterName('');
-                setRegisterUsername('');
-                setRegisterPassword('');
-                setRegisterRol('');
-                setRegisterSubmitted(false);
-                setUsername(registerUsername);
-                setPassword(registerPassword);
-            } catch (error) {
-                setRegisterLoading(false);
-                toast.current?.show({ severity: 'error', summary: 'Error', detail: `${error}` });
-            }
+        setRegisterLoading(true);
+        try {
+            const newUser: User = {
+                id: 0, // El ID se asignará en el servidor
+                name: registerName,
+                username: registerUsername,
+                email: registerEmail, // Incluir el email
+                password: registerPassword,
+                rol: registerRol
+            };
+
+            await createUserUseCase.execute(newUser);
+            setRegisterLoading(false);
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: 'Usuario registrado correctamente'
+            });
+            setVisible(false);
+
+            // Limpiar el formulario
+            setRegisterName('');
+            setRegisterUsername('');
+            setRegisterEmail('');
+            setRegisterPassword('');
+            setRegisterRol('');
+            setRegisterSubmitted(false);
+
+            // Rellenar el formulario de login para facilitar el acceso
+            setUsername(registerUsername);
+            setPassword(registerPassword);
+        } catch (error) {
+            setRegisterLoading(false);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: `${error}`
+            });
         }
     };
 
@@ -209,6 +267,26 @@ export const Login = () => {
                             <small className="p-error flex items-center gap-1">
                                 <i className="pi pi-exclamation-circle"></i>
                                 El nombre de usuario es requerido
+                            </small>
+                        )}
+                    </div>
+
+                    {/* Nuevo campo de Email */}
+                    <div className="flex flex-col">
+                        <span className="p-float-label mb-1">
+                            <InputText
+                                id="register-email"
+                                value={registerEmail}
+                                onChange={(e) => setRegisterEmail(e.target.value)}
+                                className={registerSubmitted && registerEmail && !validateEmail(registerEmail) ? 'p-invalid w-full' : 'w-full'}
+                                type="email"
+                            />
+                            <label htmlFor="register-email">Email</label>
+                        </span>
+                        {registerSubmitted && registerEmail && !validateEmail(registerEmail) && (
+                            <small className="p-error flex items-center gap-1">
+                                <i className="pi pi-exclamation-circle"></i>
+                                El formato del email no es válido
                             </small>
                         )}
                     </div>

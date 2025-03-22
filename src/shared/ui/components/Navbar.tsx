@@ -1,12 +1,19 @@
+// Actualizar el Navbar.tsx para incluir el enlace a Usuarios
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "primereact/button";
 
 export const Navbar = () => {
     const navigate = useNavigate();
+    
+    // Obtener usuario del localStorage para verificar permisos
+    const userJson = localStorage.getItem('user');
+    const user = userJson ? JSON.parse(userJson) : null;
+    const isOwner = user && user.rol === 'dueño';
 
     const handleLogout = () => {
         localStorage.removeItem("token");
+        localStorage.removeItem("user");
         navigate("/");
     }
 
@@ -48,6 +55,16 @@ export const Navbar = () => {
                                     onClick={() => navigate("/lotes")}
                                 />
                             </li>
+                            {(isOwner || (user && user.rol === 'dueño')) && (
+                                <li>
+                                    <Button
+                                        label="Usuarios"
+                                        icon="pi pi-users"
+                                        className="p-button-outlined p-button-sm"
+                                        onClick={() => navigate("/users")}
+                                    />
+                                </li>
+                            )}
                         </ul>
                     </div>
                     <div className="flex space-x-2 items-center">
@@ -55,7 +72,7 @@ export const Navbar = () => {
                             label="Cerrar sesión"
                             icon="pi pi-sign-out"
                             className="p-button-outlined p-button-sm"
-                            onClick={() => navigate("/")}
+                            onClick={handleLogout}
                         />
                     </div>
                 </div>

@@ -39,12 +39,30 @@ export class ApiUserRepository implements IUserRepository {
         return response.json();
     }
 
-    async Delete(id : string): Promise<boolean> {
+    async Delete(id : number): Promise<boolean> {
         const response = await fetch(`${this.usersURL}/${id}`, {
             method: "DELETE",
             headers: this.headers,
         });
         if (!response.ok) throw new Error("Error al eliminar el usuario");
         return true;
+    }
+
+    async GetAll(): Promise<User[]> {
+        const response = await fetch(`${this.usersURL}/`);
+        if (!response.ok) throw new Error("Error al obtener los usuarios");
+        return response.json();
+    }
+
+    async GetById(id : number): Promise<User> {
+        const response = await fetch(`${this.usersURL}/${id}`);
+        if (!response.ok) throw new Error("Error al obtener el usuario");
+        return response.json();
+    }
+
+    async GetByUsername(username : string): Promise<User> {
+        const response = await fetch(`${this.usersURL}/username/${username}`);
+        if (!response.ok) throw new Error("Error al obtener el usuario");
+        return response.json();
     }
   }
