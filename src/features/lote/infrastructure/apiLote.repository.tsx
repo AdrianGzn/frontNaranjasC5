@@ -2,10 +2,10 @@ import ILote from "../domain/lote.repository";
 import { Lote } from "../domain/lote.entity";
 
 export default class APIRepositoryLote implements ILote {
-  private cajasURL = `${import.meta.env.API_URL}/lotes`;
+  private cajasURL = `http://localhost:8080/lotes`;
 
   async Create(lote: Lote): Promise<Lote> {
-    const response = await fetch(`${this.cajasURL}`, {
+    const response = await fetch(`${this.cajasURL}/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(lote),
@@ -25,13 +25,13 @@ export default class APIRepositoryLote implements ILote {
   }
 
   async ConsultLote(): Promise<Lote> {
-    const response = await fetch(this.cajasURL);
+    const response = await fetch(`${this.cajasURL}/`);
     if (!response.ok) throw new Error("Error al consultar el lote");
     return response.json();
   }
 
   async ConsultLotes(): Promise<Lote[]> {
-    const response = await fetch(this.cajasURL);
+    const response = await fetch(`${this.cajasURL}/`);
     if (!response.ok) throw new Error("Error al consultar el lote");
     return response.json();
   }
