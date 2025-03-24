@@ -1,6 +1,6 @@
 import CardCaja from './cardCaja.component';
 
-export default function AddCajas({cajas}: any) {
+export default function CajasCargando({cajas}: any) {
     return <div className="w-[95%] h-[260px] mt-5 flex flex-wrap justify-between bg-white p-5 rounded-xl">
         <div className='w-[27%] h-full p-5 bg-slate-100'>
             hola mundo

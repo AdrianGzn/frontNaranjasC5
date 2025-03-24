@@ -4,7 +4,7 @@ import ICaja from "../domain/caja.repository";
 import APIRepositoryCaja from "./apiCaja.repository";
 import Caja from "../domain/caja.entity";
 
-export default function useCreateLote(cajaNueva: Caja) {
+export default function useCreateCaja(cajaNueva: Caja) {
   const [caja, setCaja] = useState<Caja>();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
