@@ -4,6 +4,9 @@ interface StoredUser {
     name: string;
     rol: string;
     username: string;
+    email: string;
+    id: number;
+    id_jefe: number;
 }
 
 export class AuthService {
@@ -12,7 +15,7 @@ export class AuthService {
     localStorage.setItem('user', JSON.stringify(user));
   }
 
-  static getUserData(): StoredUser | null {
+  public static getUserData(): StoredUser | null {
     const userJson = localStorage.getItem('user');
     if (!userJson) return null;
     
