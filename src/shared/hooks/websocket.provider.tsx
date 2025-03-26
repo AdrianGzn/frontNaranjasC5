@@ -1,41 +1,62 @@
-import React, { createContext, useState, useEffect } from 'react';
-import WebSocketModel from '../models/websocket-model';
+import React, { createContext, useState, useEffect, useContext } from "react";
 
-const WebSocketContext = createContext<WebSocketModel | null>(null);
+type WebSocketConnections = {
+  [key: string]: WebSocket | null;
+};
 
-export const WebSocketProvider = ({children}: any) => {
-  const [ws, setWs] = useState<any>(null);
+interface WebSocketProps {
+  connections: WebSocketConnections;
+  closeConnection: (key: string) => void;
+  addConnection: (key: string, url: string) => void;
+}
+
+const WebSocketContext = createContext<WebSocketProps | undefined>(undefined);
+
+export const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
+  const [connections, setConnections] = useState<WebSocketConnections>({});
+
+  const addConnection = (key: string, url: string) => {
+    if (connections[key]) return;
+
+    const socket = new WebSocket(url);
+
+    socket.onopen = () => console.log(`WebSocket [${key}] conectado`);
+    socket.onerror = (err) => console.error(`Error en WebSocket [${key}]:`, err);
+    socket.onmessage = (message) => console.log(`Mensaje de [${key}]:`, message.data);
+
+    setConnections((prev) => ({ ...prev, [key]: socket }));
+  };
+
+  const closeConnection = (key: string) => {
+    const connection = connections[key];
+
+    if (connection) {
+      connection.close();
+      setConnections((prev) => {
+        const newConnections = { ...prev };
+        delete newConnections[key];
+        return newConnections;
+      });
+    }
+  };
 
   useEffect(() => {
-    const socket = new WebSocket("ws://127.0.0.1:8081");
-    setWs(socket);
-
-    socket.onopen = () => {
-      console.log("Conección al websocket exitosa");
-    };
-
-    socket.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      console.log("Mensaje recibido:\n", message);
-    };
-
-    socket.onerror = (error) => {
-      console.error("Error al conectar el:\n", error);
-    };
-
-    socket.onclose = () => {
-      console.log("WebSocket connection closed");
-    };
-
     return () => {
+      Object.values(connections).forEach((ws) => ws?.close());
     };
   }, []);
 
   return (
-    <WebSocketContext.Provider value={{ws}}>
+    <WebSocketContext.Provider value={{ connections, addConnection, closeConnection }}>
       {children}
     </WebSocketContext.Provider>
   );
 };
 
-export const useWebSocket = () => React.useContext(WebSocketContext);
+export const useWebSocket = () => {
+  const context = useContext(WebSocketContext);
+  if (!context) {
+    throw new Error("Error: WebSocketContext no está dentro de WebSocketProvider");
+  }
+  return context;
+};
