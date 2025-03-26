@@ -2,23 +2,28 @@ import { useEffect, useState } from "react";
 import { ConsultLotes } from "../application/consult_lotes.usecase";
 import ILote from "../domain/lote.repository";
 import APIRepositoryLote from "./apiLote.repository";
-import { Lote } from "../domain/lote.entity";
+import Lote from "../domain/lote.entity";
 
 export default function useGetLotes() {
   const [lotes, setLotes] = useState<Lote[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const consultCaja = async () => {
+  setLoading(true);
+  setError(null);
+        
+  try {
     const repository: ILote = new APIRepositoryLote();
     const consultLotesUsecase = new ConsultLotes(repository);
+    const lotesResult = await consultLotesUsecase.execute();
+      setLotes(lotesResult);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    consultLotesUsecase
-      .execute()
-      .then(setLotes)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, []);
-
-  return { lotes, loading, error };
+  return { lotes, loading, error, consultCaja };
 };

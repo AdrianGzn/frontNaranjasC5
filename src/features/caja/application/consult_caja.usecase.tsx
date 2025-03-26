@@ -8,7 +8,7 @@ export class ConsultCaja {
     this.repository = repository;
   }
 
-  async execute(): Promise<Caja> {
-    return await this.repository.ConsultCaja();
+  async execute(id: number): Promise<Caja> {
+    return await this.repository.ConsultCaja(id);
   }
 }

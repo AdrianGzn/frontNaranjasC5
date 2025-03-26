@@ -5,20 +5,25 @@ import APIRepositoryCaja from "./apiCaja.repository";
 import Caja from "../domain/caja.entity";
 
 export default function useGetCajas() {
-  const [cajas, setCajas] = useState<Caja[]>([]);
+  const [cajasResult, setCajas] = useState<Caja[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const repository: ICaja = new APIRepositoryCaja();
-    const getCajasUseCase = new ConsultCajas(repository);
+  const consultCajas = async () => {
+        setLoading(true);
+        setError(null);
+    
+        try {
+          const repository: ICaja = new APIRepositoryCaja();
+          const getCajasUseCase = new ConsultCajas(repository);
+          const resultCajas = await getCajasUseCase.execute();
+          setCajas(resultCajas);
+        } catch (err) {
+          setError((err as Error).message);
+        } finally {
+          setLoading(false);
+        }
+  };
 
-    getCajasUseCase
-      .execute()
-      .then(setCajas)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, []);
-
-  return { cajas, loading, error };
+  return { cajasResult, loading, error, consultCajas };
 };

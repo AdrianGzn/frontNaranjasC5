@@ -1,5 +1,5 @@
 import ILote from "../domain/lote.repository";
-import { Lote } from "../domain/lote.entity";
+import Lote from "../domain/lote.entity";
 
 export default class APIRepositoryLote implements ILote {
   private cajasURL = `http://localhost:8080/lotes`;
@@ -24,8 +24,8 @@ export default class APIRepositoryLote implements ILote {
     return response.json();
   }
 
-  async ConsultLote(): Promise<Lote> {
-    const response = await fetch(`${this.cajasURL}/`);
+  async ConsultLote(id: number): Promise<Lote> {
+    const response = await fetch(`${this.cajasURL}/${id}`);
     if (!response.ok) throw new Error("Error al consultar el lote");
     return response.json();
   }

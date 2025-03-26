@@ -6,4 +6,6 @@ export default interface Caja {
     lote_fk: number
     encargado_fk: number
     cantidad: number
+    estado: string
+    esp32Fk: string
 }

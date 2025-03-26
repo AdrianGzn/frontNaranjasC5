@@ -1,24 +1,29 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CreateLote } from "../application/create_lote.usecase";
 import ILote from "../domain/lote.repository";
 import APIRepositoryLote from "./apiLote.repository";
-import { Lote } from "../domain/lote.entity";
+import Lote from "../domain/lote.entity";
 
-export default function useCreateLote(loteNuevo: Lote) {
+export default function useCreateLote() {
   const [lote, setLote] = useState<Lote>();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const repository: ILote = new APIRepositoryLote();
-    const createLoteUsecase = new CreateLote(repository);
+  const createLote = async (loteNuevo: Lote) => {
+    setLoading(true);
+    setError(null);
 
-    createLoteUsecase
-      .execute(loteNuevo)
-      .then(setLote)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, []);
+    try {
+      const repository: ILote = new APIRepositoryLote();
+      const createLoteUsecase = new CreateLote(repository);
+      const nuevoLote = await createLoteUsecase.execute(loteNuevo);
+      setLote(nuevoLote);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  return { lote, loading, error };
+  return { lote, loading, error, createLote };
 };
