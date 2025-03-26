@@ -190,3 +190,99 @@ body {
 *{
   box-sizing: border-box;
 }
+
+/* Estilos para arreglar el DataView Grid */
+.p-dataview .p-dataview-content {
+  background: transparent !important;
+}
+
+/* Configuración del Grid para que respete las columnas */
+.p-dataview.p-dataview-grid .p-dataview-content .p-grid {
+  display: flex !important;
+  flex-wrap: wrap !important;
+}
+
+/* Asegurar que las tarjetas en el grid respeten los breakpoints */
+.p-dataview-grid .p-grid > div {
+  width: 100% !important;
+}
+
+@media (min-width: 640px) {
+  .p-dataview-grid .p-grid > div {
+    width: 50% !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .p-dataview-grid .p-grid > div {
+    width: 33.33% !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .p-dataview-grid .p-grid > div {
+    width: 25% !important;
+  }
+}
+
+/* Hacer que las tarjetas llenen todo su espacio asignado */
+.p-dataview-grid .p-col {
+  padding: 0.5rem !important;
+}
+
+/* Corregir el icono de lupa superpuesto en el campo de búsqueda */
+.p-input-icon-left > i {
+  left: 0.75rem;
+}
+
+.p-input-icon-left > .p-inputtext {
+  padding-left: 2.5rem !important;
+}
+
+/* Cambiar el color de los botones de layout de DataView (vista grid/lista) */
+.p-dataview-layout-options .p-button.p-button-icon-only {
+  background-color: transparent !important;
+  border-color: #f59e0b !important;
+  color: #f59e0b !important;
+}
+
+.p-dataview-layout-options .p-button.p-button-icon-only.p-highlight {
+  background-color: #f59e0b !important;
+  border-color: #f59e0b !important;
+  color: white !important;
+}
+
+.p-dataview-layout-options .p-button.p-button-icon-only:hover {
+  background-color: rgba(245, 158, 11, 0.1) !important;
+  border-color: #d97706 !important;
+  color: #d97706 !important;
+}
+
+.p-dataview-layout-options .p-button.p-button-icon-only.p-highlight:hover {
+  background-color: #d97706 !important;
+  border-color: #d97706 !important;
+  color: white !important;
+}
+
+/* Correcciones para la vista de lista */
+.p-dataview-list .p-dataview-content > .p-grid {
+  display: block !important;
+  width: 100% !important;
+}
+
+.p-dataview-list .p-dataview-content .p-grid > div {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Si el contenido dentro de cada ítem de lista necesita más correcciones */
+.p-dataview-list .p-grid > div .p-col-12 {
+  width: 100% !important;
+  flex: 0 0 100% !important;
+}
+
+/* Para asegurar que el contenido en la vista de lista sea responsivo */
+.p-dataview-list .p-col-12 {
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+}
