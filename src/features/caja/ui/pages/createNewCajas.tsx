@@ -71,7 +71,7 @@ export default function CreateNewCajas() {
   }
 
   useEffect(() => { // crea el lote y guarda el id
-    const newLote: Lote = { id: 0, fecha: '', observaciones: ''};
+    const newLote: Lote = { id: 0, fecha: '', observaciones: '', user_id: encargadoId};
     createLote(newLote);
     setIdLote(newLote.id)    
   }, [crearLote])
