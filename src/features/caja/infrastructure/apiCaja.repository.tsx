@@ -25,7 +25,7 @@ export default class APIRepositoryCaja implements ICaja {
   }
 
   async ConsultCaja(id: number): Promise<Caja> {
-    const response = await fetch(`${this.cajasURL}/id`);
+    const response = await fetch(`${this.cajasURL}/${id}`);
     if (!response.ok) throw new Error("Error al consultar la caja");
     return response.json();
   }

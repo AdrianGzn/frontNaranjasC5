@@ -12,7 +12,7 @@ import { User } from "../../../users/domain/user.entity";
 import useCreateLote from "../../../lote/infrastructure/create_lote.controller";
 import useCreateCaja from "../../infrastructure/createCaja.controller";
 import Lote from "../../../lote/domain/lote.entity";
-import useGetCajas from "../../infrastructure/consult_caja.controller";
+import useGetCajas from "../../infrastructure/consultCajas.controller";
 import useAsignCaja from "../../infrastructure/asignCaja.controller";
 
 export default function CreateNewCajas() {
