@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Dashboard from "../../../../shared/ui/pages/dashboard.component";
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
@@ -21,6 +21,7 @@ import useGetUsers from "../../../users/infrastructure/controllers/getAllUsersCo
 
 export default function CreateNewCajas() {
   const [size, setSize] = useState<'small' | 'large' | 'normal' | undefined>('small');
+  const { addConnection, messages } = useWebSocket();
   const [cajas, setCajas] = useState<Caja[]>([]);
   const [cajasCargando, setCajasCargando] = useState<Caja[]>([]);
   const [users, setUsers] = useState<User[]>([]);
@@ -124,22 +125,32 @@ export default function CreateNewCajas() {
     setActialuzar(!actualizar)
   }
 
-  //para el websocket
-  const {ws}: any = useWebSocket();
-  useEffect(() => {
-    if (ws) {
-      const handleMessage = (event: any) => {
-        const message = JSON.parse(event.data);
-        console.log('Mensaje recibido:\n', message);
-        //aquí se pueden implementar otras acciones
-      };
-      ws.addEventListener('message', handleMessage);
-
-      return () => {
-        ws.removeEventListener('message', handleMessage);
-      };
+  //websocket
+  const getCajasSocket = useCallback(() => {
+    const socket: WebSocket = addConnection("ws://localhost:8081/cajas/")
+    socket.onopen = (message) => {
+      console.log("message connect", message)
     }
-  }, [ws]);
+    socket.onmessage = (message: any) => {
+      try {
+        const data = JSON.parse(message.data);
+        console.log("Mensaje recibido:", data);
+        setCajas((prev: any) => [...prev, data]);
+
+        return () => socket.close()
+      } catch (error) {
+        console.error("Error al parsear message.data:", error);
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    getCajasSocket();
+    console.log("cajas", cajas)
+    let cajasFiltred = cajas.filter((item: any) =>   item.estatus?.toLowerCase() === "cargando")
+    console.log("cajas cargando", cajasFiltred)
+    setCajasCargando(cajasFiltred);
+  }, [getCajasSocket]);
 
   return (
     <div className="w-full h-screen">

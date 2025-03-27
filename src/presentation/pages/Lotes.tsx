@@ -12,11 +12,15 @@ import APIRepositoryLote from '../../features/lote/infrastructure/apiLote.reposi
 import useGetLotes from '../../features/lote/infrastructure/consult_lotes.controller';
 import { CreateLote } from '../../features/lote/application/create_lote.usecase';
 import { AuthService } from '../../shared/hooks/auth_user.service';
+import { useWebSocket } from "../../shared/hooks/websocket.provider"
 
 export default function Lotes() {
     const { lotes: lotesOriginales, loading, error } = useGetLotes();
     const [lotes, setLotes] = useState<Lote[]>([]);
+    const { addConnection, messages } = useWebSocket();
 
+    addConnection("ws://localhost:8081/naranjas/")
+    console.log(messages["server"])
     // Sincronizar con datos del hook
     useEffect(() => {
         setLotes(lotesOriginales);
