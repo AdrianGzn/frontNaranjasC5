@@ -6,7 +6,7 @@ import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { Card } from 'primereact/card';
 import Dashboard from '../../shared/ui/pages/dashboard.component';
-import { Lote } from '../../features/lote/domain/lote.entity';
+import Lote from '../../features/lote/domain/lote.entity';
 import ILote from '../../features/lote/domain/lote.repository';
 import APIRepositoryLote from '../../features/lote/infrastructure/apiLote.repository';
 import useGetLotes from '../../features/lote/infrastructure/consult_lotes.controller';

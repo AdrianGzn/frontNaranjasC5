@@ -14,20 +14,29 @@ import useCreateCaja from "../../infrastructure/createCaja.controller";
 import Lote from "../../../lote/domain/lote.entity";
 import useGetCajas from "../../infrastructure/consultCajas.controller";
 import useAsignCaja from "../../infrastructure/asignCaja.controller";
+import useGetEsps from "../../../esp32/infrastructure/getEsps.controller";
+import Esp32 from "../../../esp32/domain/esp32.entity";
+import { LoginResponse } from "../../../users/domain/LoginResponse";
+import useGetUsers from "../../../users/infrastructure/controllers/getAllUsersController";
 
 export default function CreateNewCajas() {
   const [size, setSize] = useState<'small' | 'large' | 'normal' | undefined>('small');
   const [cajas, setCajas] = useState<Caja[]>([]);
   const [cajasCargando, setCajasCargando] = useState<Caja[]>([]);
   const [users, setUsers] = useState<User[]>([]);
-  const [crearLote, setCrearLote] = useState(false);
   const [encargadoId, setEncargadoId] = useState<number>(0);
   const [idLote, setIdLote] = useState<number>(0)
+  const [esps, setEsps] = useState<Esp32[]>([])
+  const [dataUser, setDataUser] = useState<LoginResponse | null>(null)
 
-  const { createLote } = useCreateLote();
+  const [actualizar, setActialuzar] = useState<boolean>(false);
+
+  const { lote, createLote } = useCreateLote();
   const { createCaja } = useCreateCaja();
   const { cajasResult, consultCajas } = useGetCajas();
   const { asignCaja } = useAsignCaja();
+  const { espsResult, consultEsps } = useGetEsps();
+  const { usersResult, consultUsers } = useGetUsers();
   
   const sizeOptions = [
     { label: 'Small', value: 'small' },
@@ -36,79 +45,84 @@ export default function CreateNewCajas() {
   ];
 
   useEffect(() => {
-    setCajas([ //cajas del patrón
-      { id: 1, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100, estado: '', esp32Fk: '' },
-      { id: 2, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100, estado: '', esp32Fk: '' },
-      { id: 3, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100, estado: '', esp32Fk: '' },
-      { id: 4, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100, estado: '', esp32Fk: '' },
-      { id: 5, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100, estado: '', esp32Fk: '' },
-      { id: 6, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100, estado: '', esp32Fk: '' },
-      { id: 7, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100, estado: '', esp32Fk: '' },
-      { id: 8, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100, estado: '', esp32Fk: '' },
-      { id: 9, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100, estado: '', esp32Fk: '' },
-    ]);
-    setCajasCargando([ //cajas cn status = cargando
-      { id: 1, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100, estado: '', esp32Fk: '' },
-      { id: 2, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100, estado: '', esp32Fk: '' },
-      { id: 3, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100, estado: '', esp32Fk: '' }
-    ]);
-    setUsers([ //usuarios filtrados
-      {id: 1, name: "Juan Pérez", username: "juanp", email: "juan.perez@example.com", password: "123456", rol: "admin"},
-      {id: 2, name: "María López", username: "marial", email: "maria.lopez@example.com", password: "abcdef", rol: "user"},
-      {id: 3, name: "José Gómez", username: "carlitos", email: "carlos.gomez@example.com", password: "qwerty", rol: "moderator"},
-      {id: 4, name: "Ana Rodríguez", username: "anar", email: "ana.rodriguez@example.com", password: "password123", rol: "user"},
-      {id: 5, name: "Luis Fernández", username: "luisf", email: "luis.fernandez@example.com", password: "abc123", rol: "admin"},
-      {id: 6, name: "Sofía Martínez", username: "sofim", email: "sofia.martinez@example.com", password: "sofipass", rol: "user"},
-      {id: 7, name: "Josefina Sánchez", username: "pedros", email: "pedro.sanchez@example.com", password: "pedro321", rol: "moderator"}
-  ]);
-  
+
+    let dataUserString = localStorage.getItem('dataUserLoged');
+    if (dataUserString) {
+      let savedDataUser: LoginResponse = JSON.parse(dataUserString);
+      setDataUser(savedDataUser);
+
+      consultEsps();
+      consultUsers();
+      consultCajas();     
+    }    
   }, []);
 
-  const onCreate = (id: number) => {
+  useEffect(() => {
+    if (dataUser) {
+      //esps del jefe
+      let filteredEsps = espsResult.filter((esp: Esp32) => esp.idJefe === dataUser.user?.id_jefe)
+      setEsps(filteredEsps);
+
+      //Usuarios con el mismo jefe
+      let filteredUsers = usersResult.filter((user: User) => user.idJefe === dataUser.user?.id_jefe)
+      setUsers(filteredUsers)
+
+      //cajas "cargando" del usuario
+      let cajasFiltered = cajasResult.filter((myCaja: Caja) => myCaja.descripción === 'cargando' && myCaja.encargado_fk === encargadoId)
+      setCajasCargando(cajasFiltered);
+
+      //todas las cajas del jefe
+      const cajasJefe = cajasResult.filter((myCaja: Caja) =>
+        esps.some((esp) => esp.id === myCaja.esp32Fk)
+      );
+      setCajas(cajasJefe);
+    }
+  }, [cajasResult, espsResult, usersResult, encargadoId, dataUser, actualizar])
+
+
+  const onCreate = (id: number) => {  //handler para crear
     console.log(id);
     setEncargadoId(id);
-    setCrearLote(!crearLote)
+    
+    const newLote: Lote = { id: 0, fecha: '', observaciones: '', user_id: id };
+    createLote(newLote).then(() => { //crea mi lote
+      if (lote) {
+        setIdLote(lote.id);
+
+        const nuevasCajas: Caja[] = [
+          { id: 0, descripción: 'cargando', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: id, cantidad: 0, estado: '', esp32Fk: '' },
+          { id: 0, descripción: 'cargando', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: id, cantidad: 0, estado: '', esp32Fk: '' },
+          { id: 0, descripción: 'cargando', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: id, cantidad: 0, estado: '', esp32Fk: '' }
+        ];
+    
+        setCajasCargando(nuevasCajas);
+        nuevasCajas.forEach((caja) => createCaja(caja)); //crea mis cajas
+      } else {
+        console.log('lote no creado');
+      }
+    });
   }
-
-  useEffect(() => { // crea el lote y guarda el id
-    const newLote: Lote = { id: 0, fecha: '', observaciones: '', user_id: encargadoId};
-    createLote(newLote);
-    setIdLote(newLote.id)    
-  }, [crearLote])
-
-  useEffect(() => { //crear las 3 cajas con el id del lote y el id del usuario
-    const nuevasCajas: Caja[] = [
-      { id: 0, descripción: 'cargando', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: encargadoId, cantidad: 0, estado: '', esp32Fk: '' },
-      { id: 0, descripción: 'cargando', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: encargadoId, cantidad: 0, estado: '', esp32Fk: '' },
-      { id: 0, descripción: 'cargando', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: encargadoId, cantidad: 0, estado: '', esp32Fk: '' }
-    ];
-  
-    setCajasCargando(nuevasCajas);
-    nuevasCajas.forEach((caja) => createCaja(caja));
-  }, [idLote]);
 
   const onStop = (id: number) => { // para detener la carga en las cajas
     console.log(id);
     setEncargadoId(id);
-  }
 
-  useEffect(() => {
     consultCajas();
-    let misCajas: Caja[] = cajasResult.filter((miCaja: Caja) => miCaja.estado === 'cargando')
+    let misCajas: Caja[] = cajasResult.filter((miCaja: Caja) => miCaja.estado === 'cargando' && miCaja.encargado_fk === encargadoId)
     misCajas.forEach((caja: Caja) => {
       caja.id = caja.id,
-      caja.descripción = 'terminado',
+      caja.descripción = caja.descripción,
       caja.peso_total = caja.peso_total,
       caja.precio = caja.precio,
       caja.lote_fk = caja.lote_fk,
       caja.encargado_fk = caja.encargado_fk,
       caja.cantidad = caja.cantidad,
-      caja.estado = caja.estado,
+      caja.estado = 'terminado',
       caja.esp32Fk = caja.esp32Fk
     });
     misCajas.forEach((caja: Caja) => asignCaja(caja.id, caja));
-
-  }, [encargadoId])
+    setActialuzar(!actualizar)
+  }
 
   //para el websocket
   const {ws}: any = useWebSocket();

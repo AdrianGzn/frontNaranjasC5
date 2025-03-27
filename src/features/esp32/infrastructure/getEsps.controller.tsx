@@ -4,12 +4,12 @@ import IEsp32 from "../domain/esp32.repository";
 import APIRepositoryEsps from "./apiCaja.repository";
 import Esp32 from "../domain/esp32.entity";
 
-export default function useGetCajas() {
-  const [cajasResult, setCajas] = useState<Esp32[]>([]);
+export default function useGetEsps() {
+  const [espsResult, setEspsResult] = useState<Esp32[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const consultCajas = async () => {
+  const consultEsps = async () => {
         setLoading(true);
         setError(null);
     
@@ -17,7 +17,7 @@ export default function useGetCajas() {
           const repository: IEsp32 = new APIRepositoryEsps();
           const getEspsUseCase = new GetEsps(repository);
           const resultEsps = await getEspsUseCase.execute();
-          setCajas(resultEsps);
+          setEspsResult(resultEsps);
         } catch (err) {
           setError((err as Error).message);
         } finally {
@@ -25,5 +25,5 @@ export default function useGetCajas() {
         }
   };
 
-  return { cajasResult, loading, error, consultCajas };
+  return { espsResult, loading, error, consultEsps };
 };
