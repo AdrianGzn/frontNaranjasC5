@@ -6,17 +6,21 @@ import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { Card } from 'primereact/card';
 import Dashboard from '../../shared/ui/pages/dashboard.component';
-import { Lote } from '../../features/lote/domain/lote.entity';
+import  Lote  from '../../features/lote/domain/lote.entity';
 import ILote from '../../features/lote/domain/lote.repository';
 import APIRepositoryLote from '../../features/lote/infrastructure/apiLote.repository';
 import useGetLotes from '../../features/lote/infrastructure/consult_lotes.controller';
 import { CreateLote } from '../../features/lote/application/create_lote.usecase';
 import { AuthService } from '../../shared/hooks/auth_user.service';
+import { useWebSocket } from "../../shared/hooks/websocket.provider"
 
 export default function Lotes() {
     const { lotes: lotesOriginales, loading, error } = useGetLotes();
     const [lotes, setLotes] = useState<Lote[]>([]);
+    const { addConnection, messages } = useWebSocket();
 
+    addConnection("ws://localhost:8081/naranjas/")
+    console.log(messages["server"])
     // Sincronizar con datos del hook
     useEffect(() => {
         setLotes(lotesOriginales);

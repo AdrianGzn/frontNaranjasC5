@@ -4,27 +4,26 @@ type WebSocketConnections = {
   [key: string]: WebSocket | null;
 };
 
+type WebsocketMessages = {
+  [key: string]: any[]
+}
+
 interface WebSocketProps {
   connections: WebSocketConnections;
+  messages: WebsocketMessages; 
   closeConnection: (key: string) => void;
-  addConnection: (key: string, url: string) => void;
+  addConnection: (url: string) => WebSocket;
 }
 
 const WebSocketContext = createContext<WebSocketProps | undefined>(undefined);
 
 export const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
   const [connections, setConnections] = useState<WebSocketConnections>({});
+  const [messages, setMessages ] = useState<WebsocketMessages>({})
 
-  const addConnection = (key: string, url: string) => {
-    if (connections[key]) return;
-
+  const addConnection = (url: string): WebSocket => {
     const socket = new WebSocket(url);
-
-    socket.onopen = () => console.log(`WebSocket [${key}] conectado`);
-    socket.onerror = (err) => console.error(`Error en WebSocket [${key}]:`, err);
-    socket.onmessage = (message) => console.log(`Mensaje de [${key}]:`, message.data);
-
-    setConnections((prev) => ({ ...prev, [key]: socket }));
+    return socket
   };
 
   const closeConnection = (key: string) => {
@@ -47,7 +46,7 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
   }, []);
 
   return (
-    <WebSocketContext.Provider value={{ connections, addConnection, closeConnection }}>
+    <WebSocketContext.Provider value={{ messages, connections, addConnection, closeConnection }}>
       {children}
     </WebSocketContext.Provider>
   );
