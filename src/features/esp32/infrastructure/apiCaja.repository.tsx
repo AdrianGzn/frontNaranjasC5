@@ -5,6 +5,8 @@ export default class APIRepositoryEsps implements IEsp32 {
   private espsURL = `${import.meta.env.API_URL}/esps`;
 
   async Create(esp: Esp32): Promise<Esp32> {
+    console.log(this.espsURL);
+    
     const response = await fetch(`${this.espsURL}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -36,7 +38,7 @@ export default class APIRepositoryEsps implements IEsp32 {
     return response.json();
   }
 
-  async Delete(id: number): Promise<any> {
+  async Delete(id: string): Promise<any> {
     const response = await fetch(`${this.espsURL}/${id}`, {
       method: "DELETE",
     });

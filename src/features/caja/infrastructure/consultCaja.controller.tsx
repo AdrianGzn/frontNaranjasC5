@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ConsultCaja } from "../application/consult_caja.usecase";
 import ICaja from "../domain/caja.repository";
 import APIRepositoryCaja from "./apiCaja.repository";
 import Caja from "../domain/caja.entity";
-import { ConsultCajas } from "../application/consult_cajas.usecase";
 
 export default function useGetCaja() {
   const [caja, setCajas] = useState<Caja>();

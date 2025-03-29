@@ -4,7 +4,7 @@ import { LoginRequest } from "../domain/LoginRequest";
 import { LoginResponse } from "../domain/LoginResponse";
 
 export class ApiUserRepository implements IUserRepository {
-    private usersURL = `http://localhost:8080/users`;
+    private usersURL = `http://54.159.248.151/users`;
     private headers = {
         "Content-Type": "application/json",
         // "Access-Control-Allow-Origin": "*",

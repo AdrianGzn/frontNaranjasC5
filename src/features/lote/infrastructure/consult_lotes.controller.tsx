@@ -9,7 +9,7 @@ export default function useGetLotes() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const consultCaja = async () => {
+  const consultLotes = async () => {
   setLoading(true);
   setError(null);
         
@@ -25,5 +25,5 @@ export default function useGetLotes() {
     }
   };
 
-  return { lotes, loading, error, consultCaja };
+  return { lotes, loading, error, consultLotes };
 };

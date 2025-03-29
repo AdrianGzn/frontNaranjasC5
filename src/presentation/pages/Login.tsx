@@ -34,7 +34,8 @@ export const Login = () => {
 
     const roles = [
         { label: 'Encargado', value: 'encargado' },
-        { label: 'Recolector', value: 'recolector' }
+        { label: 'Recolector', value: 'recolector' },
+        { label: 'Dueño', value: 'dueño' }
     ];
 
     // Validar email con expresión regular

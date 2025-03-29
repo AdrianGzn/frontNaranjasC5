@@ -43,4 +43,10 @@ export default class APIRepositoryCaja implements ICaja {
     if (!response.ok) throw new Error("Error al eliminar la caja");
     return response.json();
   }
+
+  async GetByLote(id: number): Promise<Caja[]> {
+    const response = await fetch(`${this.cajasURL}/cajas/lote/${id}`);
+    if (!response.ok) throw new Error("Error al eliminar la caja");
+    return response.json();
+  }
 }

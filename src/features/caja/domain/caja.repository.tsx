@@ -6,4 +6,5 @@ export default interface ICaja {
     ConsultCaja(id: number): Promise<Caja>
     ConsultCajas(): Promise<Caja[]>
     Delete(id: number): any
+    GetByLote(id: number): Promise<Caja[]>
 }

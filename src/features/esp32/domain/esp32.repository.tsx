@@ -5,5 +5,5 @@ export default interface IEsp32 {
     Update(id: number, caja: Esp32): Promise<Esp32>
     GetEsp(id: number): Promise<Esp32>
     GetEsps(): Promise<Esp32[]>
-    Delete(id: number): any
+    Delete(id: string): any
 }
