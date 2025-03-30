@@ -2,7 +2,7 @@ import ILote from "../domain/lote.repository";
 import Lote from "../domain/lote.entity";
 
 export default class APIRepositoryLote implements ILote {
-  private cajasURL = `http://localhost:8080/lotes`;
+  private cajasURL = `http://52.4.21.111:8082/lotes`;
 
   async Create(lote: Lote): Promise<Lote> {
     const response = await fetch(`${this.cajasURL}/`, {
@@ -31,7 +31,11 @@ export default class APIRepositoryLote implements ILote {
   }
 
   async ConsultLotes(): Promise<Lote[]> {
-    const response = await fetch(`${this.cajasURL}/`);
+    const response = await fetch(`${this.cajasURL}/`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },      
+    });
+    console.log("response", response.body)
     if (!response.ok) throw new Error("Error al consultar el lote");
     return response.json();
   }
@@ -39,6 +43,7 @@ export default class APIRepositoryLote implements ILote {
   async Delete(id: number): Promise<any> {
     const response = await fetch(`${this.cajasURL}/${id}`, {
       method: "DELETE",
+
     });
     if (!response.ok) throw new Error("Error al eliminar el lote");
     return response.json();

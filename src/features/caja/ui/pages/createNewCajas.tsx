@@ -18,7 +18,7 @@ import useGetEsps from "../../../esp32/infrastructure/getEsps.controller";
 import Esp32 from "../../../esp32/domain/esp32.entity";
 import { LoginResponse } from "../../../users/domain/LoginResponse";
 import useGetUsers from "../../../users/infrastructure/controllers/getAllUsersController";
-
+import { useCajasStore } from "../../../../data/cajasStore";
 export default function CreateNewCajas() {
   const [size, setSize] = useState<'small' | 'large' | 'normal' | undefined>('small');
   const { addConnection, messages } = useWebSocket();
@@ -29,7 +29,7 @@ export default function CreateNewCajas() {
   const [idLote, setIdLote] = useState<number>(0)
   const [esps, setEsps] = useState<Esp32[]>([])
   const [dataUser, setDataUser] = useState<LoginResponse | null>(null)
-
+  const { addCaja, cajasStore } = useCajasStore()
   const [actualizar, setActialuzar] = useState<boolean>(false);
 
   const { lote, createLote } = useCreateLote();
@@ -86,6 +86,7 @@ export default function CreateNewCajas() {
     setEncargadoId(id);
     
     const newLote: Lote = { id: 0, fecha: '', observaciones: '', user_id: id };
+
     createLote(newLote).then(() => { //crea mi lote
       if (lote) {
         setIdLote(lote.id);
@@ -127,7 +128,7 @@ export default function CreateNewCajas() {
 
   //websocket
   const getCajasSocket = useCallback(() => {
-    const socket: WebSocket = addConnection("ws://localhost:8081/cajas/")
+    const socket: WebSocket = addConnection("ws://52.4.21.111:8085/cajas/")
     socket.onopen = (message) => {
       console.log("message connect", message)
     }
@@ -135,8 +136,9 @@ export default function CreateNewCajas() {
       try {
         const data = JSON.parse(message.data);
         console.log("Mensaje recibido:", data);
-        setCajas((prev: any) => [...prev, data]);
-
+        addCaja(data)
+        setCajas(cajasStore)
+        console.log("cajas", cajasStore)
         return () => socket.close()
       } catch (error) {
         console.error("Error al parsear message.data:", error);
@@ -147,9 +149,6 @@ export default function CreateNewCajas() {
   useEffect(() => {
     getCajasSocket();
     console.log("cajas", cajas)
-    let cajasFiltred = cajas.filter((item: any) =>   item.estatus?.toLowerCase() === "cargando")
-    console.log("cajas cargando", cajasFiltred)
-    setCajasCargando(cajasFiltred);
   }, [getCajasSocket]);
 
   return (
