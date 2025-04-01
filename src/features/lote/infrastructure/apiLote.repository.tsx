@@ -2,7 +2,7 @@ import ILote from "../domain/lote.repository";
 import Lote from "../domain/lote.entity";
 
 export default class APIRepositoryLote implements ILote {
-  private cajasURL = `http://localhost:8080/lotes`;
+  private cajasURL = `${import.meta.env.VITE_API_URL}/lotes`;
 
   async Create(lote: Lote): Promise<Lote> {
     const response = await fetch(`${this.cajasURL}/`, {

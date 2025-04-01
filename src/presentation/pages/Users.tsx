@@ -34,7 +34,8 @@ export const Users = () => {
         username: '',
         email: '', // Añadimos el campo email
         password: '',
-        rol: ''
+        rol: '',
+        idJefe: 0
     });
     const [formSubmitted, setFormSubmitted] = useState(false);
 
@@ -83,7 +84,8 @@ export const Users = () => {
                         name: user.name || '',
                         username: user.username || '',
                         email: user.email || '',
-                        rol: user.rol || ''
+                        rol: user.rol || '',
+                        idJefe: user.idJefe || 0
                     };
                     setCurrentUser(completeUser);
                     setIsOwner(user.rol === 'dueño');
@@ -126,7 +128,8 @@ export const Users = () => {
             username: '',
             email: '', // Inicializar email vacío
             password: '',
-            rol: ''
+            rol: '',
+            idJefe: 0
         });
         setEditMode(false);
         setFormSubmitted(false);

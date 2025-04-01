@@ -2,7 +2,7 @@ import ICaja from "../domain/caja.repository";
 import Caja from "../domain/caja.entity";
 
 export default class APIRepositoryCaja implements ICaja {
-  private cajasURL = `${import.meta.env.API_URL}/cajas`;
+  private cajasURL = `${import.meta.env.VITE_API_URL}/cajas`;
 
   async Create(caja: Caja): Promise<Caja> {
     const response = await fetch(`${this.cajasURL}`, {

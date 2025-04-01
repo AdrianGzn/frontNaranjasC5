@@ -19,7 +19,7 @@ export default function Lotes() {
     const [lotes, setLotes] = useState<Lote[]>([]);
     const { addConnection, messages } = useWebSocket();
 
-    addConnection("ws://localhost:8081/naranjas/")
+    addConnection(`${import.meta.env.VITE_API_URL}/naranjas/`)
     console.log(messages["server"])
     // Sincronizar con datos del hook
     useEffect(() => {

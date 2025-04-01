@@ -2,7 +2,7 @@ import IEsp32 from "../domain/esp32.repository";
 import Esp32 from "../domain/esp32.entity";
 
 export default class APIRepositoryEsps implements IEsp32 {
-  private espsURL = `${import.meta.env.API_URL}/esps`;
+  private espsURL = `${import.meta.env.VITE_API_URL}/esps`;
 
   async Create(esp: Esp32): Promise<Esp32> {
     console.log(this.espsURL);
