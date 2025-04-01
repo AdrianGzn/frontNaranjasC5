@@ -2,7 +2,7 @@ import ICaja from "../domain/caja.repository";
 import Caja from "../domain/caja.entity";
 
 export default class APIRepositoryCaja implements ICaja {
-  private cajasURL = `${import.meta.env.API_URL}/cajas`;
+  private cajasURL = `http://52.4.21.111:8082/cajas`;
 
   async Create(caja: Caja): Promise<Caja> {
     const response = await fetch(`${this.cajasURL}`, {
@@ -31,7 +31,7 @@ export default class APIRepositoryCaja implements ICaja {
   }
 
   async ConsultCajas(): Promise<Caja[]> {
-    const response = await fetch(this.cajasURL);
+    const response = await fetch(`${this.cajasURL}/`);
     if (!response.ok) throw new Error("Error al consultar las cajas");
     return response.json();
   }
