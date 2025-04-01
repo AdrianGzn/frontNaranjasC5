@@ -17,6 +17,7 @@ export default function useGetCajas() {
           const repository: ICaja = new APIRepositoryCaja();
           const getCajasUseCase = new ConsultCajas(repository);
           const resultCajas = await getCajasUseCase.execute();
+          console.log("meesage sending", resultCajas)
           setCajas(resultCajas);
         } catch (err) {
           setError((err as Error).message);

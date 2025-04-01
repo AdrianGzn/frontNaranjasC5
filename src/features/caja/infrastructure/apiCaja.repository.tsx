@@ -31,7 +31,7 @@ export default class APIRepositoryCaja implements ICaja {
   }
 
   async ConsultCajas(): Promise<Caja[]> {
-    const response = await fetch(this.cajasURL);
+    const response = await fetch(`${this.cajasURL}/`);
     if (!response.ok) throw new Error("Error al consultar las cajas");
     return response.json();
   }

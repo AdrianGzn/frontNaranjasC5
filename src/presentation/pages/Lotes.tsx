@@ -12,17 +12,18 @@ import APIRepositoryLote from '../../features/lote/infrastructure/apiLote.reposi
 import useGetLotes from '../../features/lote/infrastructure/consult_lotes.controller';
 import { CreateLote } from '../../features/lote/application/create_lote.usecase';
 import { AuthService } from '../../shared/hooks/auth_user.service';
-import { useWebSocket } from "../../shared/hooks/websocket.provider"
 
 export default function Lotes() {
-    const { lotes: lotesOriginales, loading, error } = useGetLotes();
-    const [lotes, setLotes] = useState<Lote[]>([]);
-    const { addConnection, messages } = useWebSocket();
+    const { consultLotes, lotes: lotesOriginales, error } = useGetLotes();
 
-    addConnection(`${import.meta.env.VITE_API_URL}/naranjas/`)
-    console.log(messages["server"])
+    const [lotes, setLotes] = useState<Lote[]>([]);
+
+    useEffect(() => {
+        consultLotes()
+    }, [])
     // Sincronizar con datos del hook
     useEffect(() => {
+        console.log("ge lotes", lotesOriginales)
         setLotes(lotesOriginales);
     }, [lotesOriginales]);
 
@@ -327,7 +328,6 @@ export default function Lotes() {
                         paginator
                         rows={9}
                         emptyMessage="No se encontraron lotes que coincidan con la búsqueda"
-                        loading={loading}
                         className="bg-white shadow-md rounded-lg overflow-hidden"
                     />
                 </div>
