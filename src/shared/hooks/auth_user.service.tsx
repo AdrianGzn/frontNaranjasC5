@@ -1,6 +1,6 @@
 import { User } from "../../features/users/domain/user.entity";
 
-interface StoredUser {
+export interface StoredUser {
     name: string;
     rol: string;
     username: string;

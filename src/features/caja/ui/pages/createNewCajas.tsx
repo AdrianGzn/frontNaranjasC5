@@ -19,6 +19,10 @@ import Esp32 from "../../../esp32/domain/esp32.entity";
 import { LoginResponse } from "../../../users/domain/LoginResponse";
 import useGetUsers from "../../../users/infrastructure/controllers/getAllUsersController";
 import { useCajasStore } from "../../../../data/cajasStore";
+import useGetEspsId from "../../../esp32/infrastructure/getEsp32IdController";
+import { getEsp32Id } from "../../../esp32/application/getEsp32IsUseCase";
+import { AuthService, StoredUser } from "../../../../shared/hooks/auth_user.service";
+
 export default function CreateNewCajas() {
   const [size, setSize] = useState<'small' | 'large' | 'normal' | undefined>('small');
   const { addConnection, messages } = useWebSocket();
@@ -27,52 +31,50 @@ export default function CreateNewCajas() {
   const [encargadoId, setEncargadoId] = useState<number>(0);
   const [idLote, setIdLote] = useState<number>(0)
   const [esps, setEsps] = useState<Esp32[]>([])
-  const [dataUser, setDataUser] = useState<LoginResponse | null>(null)
+  const [dataUser, setDataUser] = useState<StoredUser | null>(null)
   const { addCaja, cajasStore } = useCajasStore()
   const [actualizar, setActialuzar] = useState<boolean>(false);
-
   const { lote, createLote } = useCreateLote();
   const { createCaja } = useCreateCaja();
   const { cajasResult, consultCajas, error, loading } = useGetCajas();
   const { asignCaja } = useAsignCaja();
-  const { espsResult, consultEsps } = useGetEsps();
+  const { espsResult, consultEspsId } = useGetEspsId();
   const { usersResult, consultUsers } = useGetUsers();
   const [data, setData] = useState<any[]>([])
-
   const sizeOptions = [
     { label: 'Small', value: 'small' },
     { label: 'Medium', value: 'normal' },
     { label: 'Large', value: 'large' }
   ];
-
   useEffect(() => {
-
-    let dataUserString = localStorage.getItem('dataUserLoged');
-    if (dataUserString) {
-      let savedDataUser: LoginResponse = JSON.parse(dataUserString);
-      setDataUser(savedDataUser);
-
-      consultEsps();
+    const userData = AuthService.getUserData()
+    console.log("user data", userData)
+    if (userData) {
+      setDataUser(userData);
+      const id = userData.id;
+      consultEspsId(id)
       consultUsers();
       consultCajas();
       setData(cajasResult)
-      console.log("cajas", data)
+      console.log("esp32 get it", espsResult)
     }
   }, []);
 
   useEffect(() => {
     if (dataUser) {
       //esps del jefe
-      let filteredEsps = espsResult.filter((esp: Esp32) => esp.idJefe === dataUser.user?.id_jefe)
+      let filteredEsps = espsResult.filter((esp: Esp32) => esp.id_propietario === dataUser.id_jefe)
+      console.log("esp32 filtreds", filteredEsps)
       setEsps(filteredEsps);
 
       //Usuarios con el mismo jefe
-  
-      let filteredUsers = usersResult.filter((user: User) => user.idJefe === dataUser.user?.id_jefe)
+
+      let filteredUsers = usersResult.filter((user: User) => user.idJefe === dataUser.id_jefe)
       console.log("users", filteredUsers)
       setUsers(filteredUsers)
 
       //cajas "cargando" del usuario
+      console.log("cajas result", cajasResult)
 
       let cajasFiltered = cajasResult.filter((myCaja: Caja) => myCaja.estado === '')
       setCajasCargando(cajasFiltered);
@@ -92,8 +94,8 @@ export default function CreateNewCajas() {
     console.log(id);
     setEncargadoId(id);
 
-    const newLote: Lote = { id: 0, fecha: '', observaciones: '', user_id: id };
-
+    const newLote: Lote = { id: 0, fecha: '', observaciones: '', user_id: dataUser?.id };
+    console.log("new lote",  newLote)
     createLote(newLote).then(() => { //crea mi lote
       if (lote) {
         setIdLote(lote.id);
@@ -158,7 +160,7 @@ export default function CreateNewCajas() {
     <div className="w-full h-screen">
       <Dashboard>
         <div className="w-full h-full flex flex-col items-center">
-          <CajasCargar suggestions={users} onCreate={onCreate} onStop={onStop}></CajasCargar>
+          <CajasCargar suggestions={users} onCreate={onCreate} onStop={onStop} esp32={espsResult}></CajasCargar>
           <CajasCargando cajas={cajasCargando}></CajasCargando>
           <TableCajas size={size} setSize={setSize} sizeOptions={sizeOptions} cajas={cajasStore} ></TableCajas>
         </div>

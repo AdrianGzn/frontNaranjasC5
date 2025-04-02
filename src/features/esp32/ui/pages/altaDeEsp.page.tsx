@@ -7,6 +7,7 @@ import { LoginResponse } from "../../../users/domain/LoginResponse";
 import useDeleteEsps from "../../infrastructure/deleteEsp.controller";
 import TableViewEsps from "../components/listEsps.component";
 import { Button } from "primereact/button";
+import useGetEspsId from "../../infrastructure/getEsp32IdController";
 
 export default function AltaDeEsp() {
     const [esps, setEsps] = useState<Esp32[]>([]);
@@ -14,7 +15,7 @@ export default function AltaDeEsp() {
     const [update, setUpdate] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false); // Nuevo estado para deshabilitar el botón
 
-    const { espsResult, consultEsps } = useGetEsps();
+    const { espsResult, consultEspsId } = useGetEspsId();
     const { createEsps } = useCreateEsps();
     const { deleteEsps } = useDeleteEsps();
 
@@ -24,7 +25,7 @@ export default function AltaDeEsp() {
             return;
         }
 
-        let newEsp: Esp32 = { id: "", idJefe: userData.user.id };
+        let newEsp: Esp32 = { id: "", id_propietario: userData.user.id };
         
         try {
             setIsLoading(true); // Activar loading
@@ -48,6 +49,7 @@ export default function AltaDeEsp() {
 
     useEffect(() => {
         let dataUserString = localStorage.getItem("dataUserLoged");
+        console.log("use")
         if (dataUserString) {
             let savedDataUser: LoginResponse = JSON.parse(dataUserString);
             setUserData(savedDataUser);
@@ -56,13 +58,14 @@ export default function AltaDeEsp() {
 
     useEffect(() => {
         if (userData?.user) {
-            consultEsps();
+            consultEspsId(userData.user.id);
+            console.log("esp32 result", espsResult)
         }
     }, [userData, update]);
 
     useEffect(() => {
         if (userData?.user?.id && espsResult.length > 0) {
-            setEsps(espsResult.filter((esp: Esp32) => esp.idJefe === userData.user?.id));
+            setEsps(espsResult.filter((esp: Esp32) => esp.id_propietario === userData.user?.id));
         } else {
             console.log("No hay usuario o datos en el arreglo de esps");
         }
@@ -83,7 +86,13 @@ export default function AltaDeEsp() {
                         loading={isLoading} 
                     />
                 </div>
-
+                {
+                    espsResult.map((item: any) => (
+                        <p>
+                            {item.id}
+                        </p>
+                    ))
+                }
                     <TableViewEsps handleDelete={handleDelete} esps={esps} />
                 </div>
             </Dashboard>
