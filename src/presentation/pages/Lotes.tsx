@@ -17,8 +17,10 @@ import { AuthService } from '../../shared/hooks/auth_user.service';
 import useGetEspsId from '../../features/esp32/infrastructure/getEsp32IdController';
 import Esp32 from '../../features/esp32/domain/esp32.entity';
 import { CreateLoteRequest } from '../../features/lote/domain/CreateLoteRequest';
+import { useNavigate } from 'react-router-dom';
 
 export default function Lotes() {
+    const navigate = useNavigate();
     const { consultLotes, lotes: lotesOriginales, error } = useGetLotes(AuthService.getUserData()?.id || 0);
 
     const [lotes, setLotes] = useState<Lote[]>([]);
@@ -38,7 +40,7 @@ export default function Lotes() {
     // Sincronizar con datos del hook
     useEffect(() => {
         console.log("get lotes", lotesOriginales)
-        setLotes(lotesOriginales);
+        setLotes(lotesOriginales || []);
     }, [lotesOriginales]);
 
     // Añadir useEffect para cargar ESP32s
@@ -136,8 +138,7 @@ export default function Lotes() {
     };
 
     const handleViewDetails = (lote: Lote) => {
-        showToast('info', 'Información', `Viendo detalles del lote: ${lote.id}`);
-        // Aquí podrías navegar a una página de detalles del lote
+        navigate(`/lotes/detalle/${lote.id}`);
     };
 
     // Header para el DataView

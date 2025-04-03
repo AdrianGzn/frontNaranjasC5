@@ -101,9 +101,9 @@ export default function CreateNewCajas() {
         setIdLote(lote.id);
 
         const nuevasCajas: Caja[] = [
-          { id: 0, descripción: 'cargando', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: id, cantidad: 0, estado: '', esp32Fk: '' },
-          { id: 0, descripción: 'cargando', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: id, cantidad: 0, estado: '', esp32Fk: '' },
-          { id: 0, descripción: 'cargando', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: id, cantidad: 0, estado: '', esp32Fk: '' }
+          { id: 0, descripcion: 'cargando', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: id, cantidad: 0, estado: '', esp32Fk: '' },
+          { id: 0, descripcion: 'cargando', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: id, cantidad: 0, estado: '', esp32Fk: '' },
+          { id: 0, descripcion: 'cargando', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: id, cantidad: 0, estado: '', esp32Fk: '' }
         ];
 
         setCajasCargando(nuevasCajas);
@@ -122,7 +122,7 @@ export default function CreateNewCajas() {
     let misCajas: Caja[] = cajasResult.filter((miCaja: Caja) => miCaja.estado === 'cargando' && miCaja.encargado_fk === encargadoId)
     misCajas.forEach((caja: Caja) => {
       caja.id = caja.id,
-        caja.descripción = caja.descripción,
+        caja.descripcion = caja.descripcion,
         caja.peso_total = caja.peso_total,
         caja.precio = caja.precio,
         caja.lote_fk = caja.lote_fk,

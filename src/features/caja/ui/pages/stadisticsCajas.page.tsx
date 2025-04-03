@@ -85,14 +85,14 @@ export default function StadisticsCajas() {
         setMyLotes(simulatedLotes);
 
         const simulatedCajas: Caja[] = [
-            { id: 1, descripción: "Caja A", peso_total: 10, precio: 100, lote_fk: 1, encargado_fk: 1, cantidad: 5, estado: "Nuevo", esp32Fk: "ESP123" },
-            { id: 2, descripción: "Caja B", peso_total: 15, precio: 150, lote_fk: 1, encargado_fk: 1, cantidad: 3, estado: "Nuevo", esp32Fk: "ESP124" },
-            { id: 3, descripción: "Caja C", peso_total: 20, precio: 200, lote_fk: 2, encargado_fk: 2, cantidad: 8, estado: "Usado", esp32Fk: "ESP125" },
-            { id: 4, descripción: "Caja D", peso_total: 25, precio: 250, lote_fk: 3, encargado_fk: 3, cantidad: 10, estado: "Nuevo", esp32Fk: "ESP126" },
-            { id: 5, descripción: "Caja E", peso_total: 30, precio: 300, lote_fk: 4, encargado_fk: 1, cantidad: 12, estado: "Usado", esp32Fk: "ESP127" },
-            { id: 6, descripción: "Caja F", peso_total: 35, precio: 350, lote_fk: 5, encargado_fk: 2, cantidad: 15, estado: "Nuevo", esp32Fk: "ESP128" },
-            { id: 7, descripción: "Caja G", peso_total: 40, precio: 400, lote_fk: 6, encargado_fk: 3, cantidad: 18, estado: "Usado", esp32Fk: "ESP129" },
-            { id: 8, descripción: "Caja H", peso_total: 45, precio: 450, lote_fk: 7, encargado_fk: 1, cantidad: 20, estado: "Nuevo", esp32Fk: "ESP130" }
+            { id: 1, descripcion: "Caja A", peso_total: 10, precio: 100, lote_fk: 1, encargado_fk: 1, cantidad: 5, estado: "Nuevo", esp32Fk: "ESP123" },
+            { id: 2, descripcion: "Caja B", peso_total: 15, precio: 150, lote_fk: 1, encargado_fk: 1, cantidad: 3, estado: "Nuevo", esp32Fk: "ESP124" },
+            { id: 3, descripcion: "Caja C", peso_total: 20, precio: 200, lote_fk: 2, encargado_fk: 2, cantidad: 8, estado: "Usado", esp32Fk: "ESP125" },
+            { id: 4, descripcion: "Caja D", peso_total: 25, precio: 250, lote_fk: 3, encargado_fk: 3, cantidad: 10, estado: "Nuevo", esp32Fk: "ESP126" },
+            { id: 5, descripcion: "Caja E", peso_total: 30, precio: 300, lote_fk: 4, encargado_fk: 1, cantidad: 12, estado: "Usado", esp32Fk: "ESP127" },
+            { id: 6, descripcion: "Caja F", peso_total: 35, precio: 350, lote_fk: 5, encargado_fk: 2, cantidad: 15, estado: "Nuevo", esp32Fk: "ESP128" },
+            { id: 7, descripcion: "Caja G", peso_total: 40, precio: 400, lote_fk: 6, encargado_fk: 3, cantidad: 18, estado: "Usado", esp32Fk: "ESP129" },
+            { id: 8, descripcion: "Caja H", peso_total: 45, precio: 450, lote_fk: 7, encargado_fk: 1, cantidad: 20, estado: "Nuevo", esp32Fk: "ESP130" }
         ];
 
         const simulatedChartData = simulatedLotes.map(lote => {
