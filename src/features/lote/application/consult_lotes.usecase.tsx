@@ -8,7 +8,7 @@ export class ConsultLotes {
     this.repository = repository;
   }
 
-  async execute(): Promise<Lote[]> {
-    return await this.repository.ConsultLotes();
+  async execute(id : number): Promise<Lote[]> {
+    return await this.repository.ConsultLotes(id);
   }
 }

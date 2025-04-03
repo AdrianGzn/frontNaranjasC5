@@ -30,8 +30,8 @@ export default class APIRepositoryLote implements ILote {
     return response.json();
   }
 
-  async ConsultLotes(): Promise<Lote[]> {
-    const response = await fetch(`${this.cajasURL}/`, {
+  async ConsultLotes(id: number): Promise<Lote[]> {
+    const response = await fetch(`${this.cajasURL}/user/${id}`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },      
     });
