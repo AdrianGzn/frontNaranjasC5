@@ -17,6 +17,7 @@ export default function useGetLotes(id: number) {
     const repository: ILote = new APIRepositoryLote();
     const consultLotesUsecase = new ConsultLotes(repository);
     const lotesResult = await consultLotesUsecase.execute(id);
+     console.log("lotes", lotesResult)
       setLotes(lotesResult);
     } catch (err) {
       setError((err as Error).message);
