@@ -4,7 +4,7 @@ import ILote from "../domain/lote.repository";
 import APIRepositoryLote from "./apiLote.repository";
 import Lote from "../domain/lote.entity";
 
-export default function useGetLotes() {
+export default function useGetLotes(id: number) {
   const [lotes, setLotes] = useState<Lote[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -16,7 +16,7 @@ export default function useGetLotes() {
   try {
     const repository: ILote = new APIRepositoryLote();
     const consultLotesUsecase = new ConsultLotes(repository);
-    const lotesResult = await consultLotesUsecase.execute();
+    const lotesResult = await consultLotesUsecase.execute(id);
      console.log("lotes", lotesResult)
       setLotes(lotesResult);
     } catch (err) {

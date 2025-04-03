@@ -5,6 +5,8 @@ import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { Card } from 'primereact/card';
+import { Dialog } from 'primereact/dialog';
+import { InputTextarea } from 'primereact/inputtextarea';
 import Dashboard from '../../shared/ui/pages/dashboard.component';
 import Lote from '../../features/lote/domain/lote.entity';
 import ILote from '../../features/lote/domain/lote.repository';
@@ -14,20 +16,22 @@ import { CreateLote } from '../../features/lote/application/create_lote.usecase'
 import { AuthService } from '../../shared/hooks/auth_user.service';
 
 export default function Lotes() {
-    const { consultLotes, lotes: lotesOriginales, error } = useGetLotes();
+    const { consultLotes, lotes: lotesOriginales, error } = useGetLotes(AuthService.getUserData()?.id || 0);
 
     const [lotes, setLotes] = useState<Lote[]>([]);
+    const [dialogVisible, setDialogVisible] = useState<boolean>(false);
+    const [observaciones, setObservaciones] = useState<string>('');
 
     useEffect(() => {
         consultLotes()
     }, [])
     // Sincronizar con datos del hook
     useEffect(() => {
-        console.log("ge lotes", lotesOriginales)
+        console.log("get lotes", lotesOriginales)
         setLotes(lotesOriginales);
     }, [lotesOriginales]);
 
-    // Only create repository for operations like Create
+    // Crear un nuevo lote con el caso de uso y el repositorio
     const repository: ILote = new APIRepositoryLote();
     const createLoteUsecase = new CreateLote(repository);
 
@@ -45,6 +49,11 @@ export default function Lotes() {
         { label: 'ID (menor-mayor)', value: 'id' }
     ];
 
+    const openNewLoteDialog = () => {
+        setObservaciones('');
+        setDialogVisible(true);
+    };
+
     const handleCreateLote = async () => {
         const user = AuthService.getUserData();
         if (!user) {
@@ -56,7 +65,7 @@ export default function Lotes() {
             const loteParaCrear: Lote = {
                 id: 0, // El backend asignará el ID real
                 fecha: new Date(),
-                observaciones: '',
+                observaciones: observaciones,
                 user_id: user.id
             };
 
@@ -66,11 +75,14 @@ export default function Lotes() {
             // Actualizar el estado local con el nuevo lote
             setLotes(prevLotes => [...prevLotes, nuevoLote]);
 
+            // Cerrar el diálogo
+            setDialogVisible(false);
+
             showToast('success', 'Éxito', `Lote #${nuevoLote.id} creado exitosamente`);
         } catch (error: any) {
             showToast('error', 'Error', error.message || 'Error al crear el lote');
         }
-    }
+    };
 
     const onSortChange = (event: any) => {
         const value = event.value;
@@ -135,44 +147,44 @@ export default function Lotes() {
 
     // Renderizar un lote en vista de grid
     const gridItem = (lote: Lote) => {
-    return (
-        <div className="col-12 sm:col-6 lg:col-4 xl:col-3 p-2 flex">
-            <Card className="border border-amber-200 shadow-md hover:shadow-lg transition-shadow w-full">
-                <div className="flex flex-col h-full">
-                    <div className="mb-3">
-                        <div className="bg-gradient-to-r from-amber-500 to-amber-400 h-32 rounded-lg mb-3 flex items-center justify-center">
-                            <i className="pi pi-map text-white text-5xl"></i>
-                        </div>
-                        <div className="flex justify-between items-start">
-                            <h3 className="text-xl font-bold text-amber-800 mb-1">Lote #{lote.id}</h3>
-                        </div>
-                    </div>
-
-                    <div className="flex-grow">
-                        <div className="bg-amber-50 p-3 rounded mb-3">
-                            <p className="text-sm text-amber-600">Fecha</p>
-                            <p className="font-semibold">{formatDate(lote.fecha)}</p>
+        return (
+            <div className="col-12 sm:col-6 lg:col-4 xl:col-3 p-2 flex">
+                <Card className="border border-amber-200 shadow-md hover:shadow-lg transition-shadow w-full">
+                    <div className="flex flex-col h-full">
+                        <div className="mb-3">
+                            <div className="bg-gradient-to-r from-amber-500 to-amber-400 h-32 rounded-lg mb-3 flex items-center justify-center">
+                                <i className="pi pi-map text-white text-5xl"></i>
+                            </div>
+                            <div className="flex justify-between items-start">
+                                <h3 className="text-xl font-bold text-amber-800 mb-1">Lote #{lote.id}</h3>
+                            </div>
                         </div>
 
-                        <div className="bg-amber-50 p-3 rounded mb-3">
-                            <p className="text-sm text-amber-600">Observaciones</p>
-                            <p className="font-semibold">{lote.observaciones || 'Sin observaciones'}</p>
+                        <div className="flex-grow">
+                            <div className="bg-amber-50 p-3 rounded mb-3">
+                                <p className="text-sm text-amber-600">Fecha</p>
+                                <p className="font-semibold">{formatDate(lote.fecha)}</p>
+                            </div>
+
+                            <div className="bg-amber-50 p-3 rounded mb-3">
+                                <p className="text-sm text-amber-600">Observaciones</p>
+                                <p className="font-semibold">{lote.observaciones || 'Sin observaciones'}</p>
+                            </div>
+                        </div>
+
+                        <div className="pt-3 mt-auto border-t border-amber-100">
+                            <Button
+                                label="Ver Detalles"
+                                icon="pi pi-eye"
+                                className="p-button-outlined w-full"
+                                onClick={() => handleViewDetails(lote)}
+                            />
                         </div>
                     </div>
-
-                    <div className="pt-3 mt-auto border-t border-amber-100">
-                        <Button
-                            label="Ver Detalles"
-                            icon="pi pi-eye"
-                            className="p-button-outlined w-full"
-                            onClick={() => handleViewDetails(lote)}
-                        />
-                    </div>
-                </div>
-            </Card>
-        </div>
-    );
-};
+                </Card>
+            </div>
+        );
+    };
 
     // Renderizar un lote en vista de lista
     const listItem = (lote: Lote) => {
@@ -248,6 +260,23 @@ export default function Lotes() {
         return sortOrder * ((valueA > valueB) ? 1 : -1);
     });
 
+    const dialogFooter = (
+        <div>
+            <Button
+                label="Cancelar"
+                icon="pi pi-times"
+                onClick={() => setDialogVisible(false)}
+                className="p-button-text"
+            />
+            <Button
+                label="Crear Lote"
+                icon="pi pi-check"
+                onClick={handleCreateLote}
+                autoFocus
+            />
+        </div>
+    );
+
     return (
         <Dashboard>
             <div className="p-4">
@@ -260,7 +289,7 @@ export default function Lotes() {
                             label="Nuevo Lote"
                             icon="pi pi-plus"
                             className="p-button"
-                            onClick={handleCreateLote}
+                            onClick={openNewLoteDialog}
                         />
                     </div>
                     <p className="text-amber-700">Explora y visualiza todos los lotes registrados en el sistema</p>
@@ -339,6 +368,30 @@ export default function Lotes() {
                     </div>
                 )}
             </div>
+
+            {/* Diálogo para crear nuevo lote */}
+            <Dialog
+                visible={dialogVisible}
+                style={{ width: '450px' }}
+                header="Crear Nuevo Lote"
+                modal
+                className="p-fluid"
+                footer={dialogFooter}
+                onHide={() => setDialogVisible(false)}
+            >
+                <div className="field">
+                    <label htmlFor="observaciones" className="font-medium text-amber-800">Observaciones</label>
+                    <InputTextarea
+                        id="observaciones"
+                        value={observaciones}
+                        onChange={(e) => setObservaciones(e.target.value)}
+                        rows={5}
+                        autoFocus
+                        placeholder="Ingrese sus observaciones sobre este lote..."
+                        className="mt-2"
+                    />
+                </div>
+            </Dialog>
         </Dashboard>
     );
 }
