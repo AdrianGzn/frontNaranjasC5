@@ -16,6 +16,8 @@ import { GetAllUsersUseCase } from '../../features/users/application/GetAllUsers
 import { DeleteUserUseCase } from '../../features/users/application/DeleteUserUseCase';
 import { UpdateUserUseCase } from '../../features/users/application/UpdateUserUseCase';
 import { CreateUserUseCase } from '../../features/users/application/CreateUserUseCase';
+import { GetByJefeUseCase } from '../../features/users/application/GetByJefeUseCase';
+import { AuthService } from '../../shared/hooks/auth_user.service';
 
 export const Users = () => {
     // Estado para usuarios y usuario actual
@@ -32,7 +34,7 @@ export const Users = () => {
         id: 0,
         name: '',
         username: '',
-        email: '', // Añadimos el campo email
+        email: '',
         password: '',
         rol: ''
     });
@@ -45,6 +47,7 @@ export const Users = () => {
     const deleteUserUseCase = new DeleteUserUseCase(userRepository)
     const updateUserUseCase = new UpdateUserUseCase(userRepository)
     const createUserUseCase = new CreateUserUseCase(userRepository)
+    const getByJefeUseCase = new GetByJefeUseCase(userRepository)
 
     // Opciones para el dropdown de roles
     const roles = [
@@ -97,8 +100,14 @@ export const Users = () => {
         };
 
         const loadUsers = async () => {
+            const user = AuthService.getUserData();
+            if (!user) {
+                navigate('/');
+                return;
+            }
+
             try {
-                getUsersUseCase.execute().then((users) => {
+                getByJefeUseCase.execute(user.id).then((users) => {
                     setUsers(users);
                 });
             } catch (error) {

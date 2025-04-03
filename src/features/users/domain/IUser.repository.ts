@@ -10,4 +10,5 @@ export interface IUserRepository {
     GetAll(): Promise<User[]>
     GetById(id : number): Promise<User>
     GetByUsername(username : string): Promise <User>
+    GetByJefe(jefe : number): Promise<User[]>
 }

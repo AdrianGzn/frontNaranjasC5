@@ -65,4 +65,10 @@ export class ApiUserRepository implements IUserRepository {
         if (!response.ok) throw new Error("Error al obtener el usuario");
         return response.json();
     }
+
+    async GetByJefe(jefeId : number): Promise<User[]> {
+        const response = await fetch(`${this.usersURL}/jefe/${jefeId}`);
+        if (!response.ok) throw new Error("Error al obtener los usuarios");
+        return response.json();
+    }
   }
