@@ -5,7 +5,7 @@ import { Button } from "primereact/button";
 
 export const Navbar = () => {
     const navigate = useNavigate();
-    
+
     // Obtener usuario del localStorage para verificar permisos
     const userJson = localStorage.getItem('user');
     const user = userJson ? JSON.parse(userJson) : null;
@@ -22,9 +22,9 @@ export const Navbar = () => {
             <div className="container mx-auto flex justify-between items-center">
                 <div className="flex items-center">
                     <img
-                        src="/logo-naranja.png"
+                        src="/logo-naranjas.png"
                         alt="Logo Sistema Naranjas"
-                        className="h-10 mr-3"
+                        className="h-20 mr-3"
                     />
                     <h1 className="text-2xl font-bold text-amber-600">Sistema de Naranjas</h1>
                 </div>
@@ -62,6 +62,16 @@ export const Navbar = () => {
                                         icon="pi pi-users"
                                         className="p-button-outlined p-button-sm"
                                         onClick={() => navigate("/users")}
+                                    />
+                                </li>
+                            )}
+                            {(isOwner || (user && user.rol === 'dueño')) && (
+                                <li>
+                                    <Button
+                                        label="ESP32"
+                                        icon="pi pi-cog"
+                                        className="p-button-outlined p-button-sm"
+                                        onClick={() => navigate("/esp/alta")}
                                     />
                                 </li>
                             )}

@@ -30,7 +30,7 @@ export default function TableViewEsps({ esps, handleDelete }: any) {
                     <div className="flex-grow">
                         <div className="bg-amber-50 p-3 rounded mb-3">
                             <p className="text-sm text-amber-600">Id del dueño:</p>
-                            <p className="font-semibold">{esp.idJefe || 'Id no encontrada'}</p>
+                            <p className="font-semibold">{esp.id_propietario || 'Id no encontrada'}</p>
                         </div>
                     </div>
                     <div className="pt-3 mt-auto border-t border-amber-100">
@@ -55,7 +55,7 @@ export default function TableViewEsps({ esps, handleDelete }: any) {
                             <i className="pi pi-id-card mr-2"></i> Id de la Esp: {esp.id || 'Id no encontrada'}
                         </span>
                         <span className="text-sm text-amber-700">
-                            <i className="pi pi-user mr-2"></i> Id del dueño: {esp.idJefe || 'Id no encontrada'}
+                            <i className="pi pi-user mr-2"></i> Id del dueño: {esp.id_propietario || 'Id no encontrada'}
                         </span>
                         <Button
                             label="Eliminar"
@@ -89,5 +89,5 @@ export default function TableViewEsps({ esps, handleDelete }: any) {
             </div>
         </div>
     );
-    
+
 }

@@ -86,14 +86,7 @@ export default function AltaDeEsp() {
                         loading={isLoading} 
                     />
                 </div>
-                {
-                    espsResult.map((item: any) => (
-                        <p>
-                            {item.id}
-                        </p>
-                    ))
-                }
-                    <TableViewEsps handleDelete={handleDelete} esps={esps} />
+                    <TableViewEsps handleDelete={handleDelete} esps={espsResult} />
                 </div>
             </Dashboard>
         </div>
