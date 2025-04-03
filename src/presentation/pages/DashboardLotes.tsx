@@ -10,14 +10,22 @@ import { Toast } from 'primereact/toast';
 import Dashboard from '../../shared/ui/pages/dashboard.component';
 import { AuthService } from '../../shared/hooks/auth_user.service';
 import useGetLotesDetailsByUserID from '../../features/lote/infrastructure/get_lotes_details_by_user.controller';
+import useGetLotesByDateRange from '../../features/lote/infrastructure/get_lotes_by_date_range.controller';
 import { LoteDetailsResponse } from '../../features/lote/domain/LoteDetailsResponse';
 import Caja from '../../features/caja/domain/caja.entity';
 
 export default function DashboardLotes() {
-    const { lotesDetails, loading, error, getLotesDetailsByUserID } = useGetLotesDetailsByUserID();
+    const { lotesDetails, loading: loadingAll, error: errorAll, getLotesDetailsByUserID } = useGetLotesDetailsByUserID();
+    const { lotesDetails: filteredLotesDetails, loading: loadingFiltered, error: errorFiltered, getLotesByDateRange } = useGetLotesByDateRange();
     const toast = useRef<Toast>(null);
 
-    // Estados para los gráficos
+    const [showingFiltered, setShowingFiltered] = useState<boolean>(false);
+    const [rangoFechas, setRangoFechas] = useState<Date[]>([]);
+
+    const currentData = showingFiltered ? filteredLotesDetails : lotesDetails;
+    const loading = showingFiltered ? loadingFiltered : loadingAll;
+    const error = showingFiltered ? errorFiltered : errorAll;
+
     const [tipoNaranjaChart, setTipoNaranjaChart] = useState<any>(null);
     const [produccionPorTiempoChart, setProduccionPorTiempoChart] = useState<any>(null);
     const [pesoPromedioChart, setPesoPromedioChart] = useState<any>(null);
@@ -28,16 +36,11 @@ export default function DashboardLotes() {
         pesoTotal: 0
     });
 
-    // Estados para filtros
-    const [rangoFechas, setRangoFechas] = useState<Date[]>([]);
-    const [tipoFiltro, setTipoFiltro] = useState<string>('todos');
-
     useEffect(() => {
         const userId = AuthService.getUserData()?.id;
         if (userId) {
             getLotesDetailsByUserID(userId);
         } else {
-            // Manejar caso sin usuario autenticado
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -47,15 +50,13 @@ export default function DashboardLotes() {
         }
     }, []);
 
-    // Procesar datos cuando se cargan
     useEffect(() => {
-        if (lotesDetails && lotesDetails.length > 0) {
-            procesarDatos(lotesDetails);
+        if (currentData && currentData.length > 0) {
+            procesarDatos(currentData);
         }
-    }, [lotesDetails]);
+    }, [currentData]);
 
     const procesarDatos = (datos: LoteDetailsResponse[]) => {
-        // Calcular estadísticas generales
         let totalCajas = 0;
         let totalNaranjas = 0;
         let pesoTotal = 0;
@@ -83,7 +84,6 @@ export default function DashboardLotes() {
     };
 
     const generarGraficoTipoNaranja = (datos: LoteDetailsResponse[]) => {
-        // Contar cajas por tipo
         let naranja = 0;
         let verde = 0;
         let maduracion = 0;
@@ -128,12 +128,11 @@ export default function DashboardLotes() {
     };
 
     const generarGraficoProduccionPorTiempo = (datos: LoteDetailsResponse[]) => {
-        // Agrupar producción por mes
         const produccionPorMes: { [key: string]: number } = {};
 
         datos.forEach(lote => {
             const fecha = new Date(lote.lote.fecha);
-            const mes = fecha.toLocaleString('default', { month: 'long', year: 'numeric' });
+            const mes = fecha.toLocaleString('es-MX', { month: 'short', year: '2-digit' });
 
             if (!produccionPorMes[mes]) {
                 produccionPorMes[mes] = 0;
@@ -163,6 +162,7 @@ export default function DashboardLotes() {
 
         const options = {
             maintainAspectRatio: false,
+            responsive: true,
             aspectRatio: 0.6,
             plugins: {
                 legend: {
@@ -181,7 +181,11 @@ export default function DashboardLotes() {
             scales: {
                 x: {
                     ticks: {
-                        color: '#495057'
+                        color: '#495057',
+                        maxRotation: 45,
+                        minRotation: 45,
+                        autoSkip: true,
+                        maxTicksLimit: 12
                     },
                     grid: {
                         color: '#ebedef'
@@ -202,7 +206,6 @@ export default function DashboardLotes() {
     };
 
     const generarGraficoPesoPromedio = (datos: LoteDetailsResponse[]) => {
-        // Calcular peso promedio por tipo de naranja
         let cajasTipoNaranja = 0;
         let cajasTipoVerde = 0;
         let cajasTipoMaduracion = 0;
@@ -284,12 +287,36 @@ export default function DashboardLotes() {
         setPesoPromedioChart({ data, options });
     };
 
-    // Formatear números para mostrar separadores de miles
+    const aplicarFiltros = () => {
+        if (rangoFechas.length !== 2) {
+            toast.current?.show({
+                severity: 'warn',
+                summary: 'Advertencia',
+                detail: 'Debes seleccionar un rango de fechas completo',
+                life: 3000
+            });
+            return;
+        }
+
+        const startDate = rangoFechas[0].toISOString().split('T')[0];
+        const endDate = rangoFechas[1].toISOString().split('T')[0];
+
+        const userId = AuthService.getUserData()?.id;
+        if (userId) {
+            getLotesByDateRange(userId, startDate, endDate);
+            setShowingFiltered(true);
+        }
+    };
+
+    const limpiarFiltros = () => {
+        setRangoFechas([]);
+        setShowingFiltered(false);
+    };
+
     const formatNumber = (num: number) => {
         return num.toLocaleString('es-MX');
     };
 
-    // Formatear peso para mostrar en kg
     const formatWeight = (weight: number) => {
         const kg = weight / 1000;
         return `${kg.toLocaleString('es-MX', { maximumFractionDigits: 2 })} kg`;
@@ -325,7 +352,51 @@ export default function DashboardLotes() {
                     <p className="text-amber-700">Análisis global de todos los lotes y cajas registrados</p>
                 </div>
 
-                {/* Tarjetas de estadísticas */}
+                <Card className="border border-amber-200 shadow-sm mb-6">
+                    <div className="flex flex-col md:flex-row md:items-end gap-4 p-2">
+                        <div className="flex-1">
+                            <label htmlFor="daterange" className="block text-amber-800 font-medium mb-2">Rango de Fechas</label>
+                            <Calendar
+                                id="daterange"
+                                value={rangoFechas}
+                                onChange={(e) => setRangoFechas(e.value as Date[])}
+                                selectionMode="range"
+                                readOnlyInput
+                                placeholder="Seleccionar rango de fechas"
+                                showIcon
+                                className="w-full"
+                            />
+                        </div>
+                        <div className="flex gap-2 mt-2 md:mt-0 md:mb-0">
+                            <Button
+                                label="Aplicar Filtros"
+                                icon="pi pi-filter"
+                                onClick={aplicarFiltros}
+                                loading={loadingFiltered}
+                            />
+                            <Button
+                                label="Limpiar"
+                                icon="pi pi-times"
+                                className="p-button-outlined"
+                                onClick={limpiarFiltros}
+                                disabled={loadingFiltered}
+                            />
+                        </div>
+                    </div>
+                </Card>
+
+                {showingFiltered && (
+                    <div className="bg-amber-50 p-2 rounded-lg mb-4 flex items-center justify-between">
+                        <div className="flex items-center">
+                            <span className="pi pi-filter text-amber-500 mr-2"></span>
+                            <span className="text-amber-700">
+                                Filtrando desde: <strong>{rangoFechas[0].toLocaleDateString()}</strong> hasta: <strong>{rangoFechas[1].toLocaleDateString()}</strong>
+                            </span>
+                        </div>
+                        <Button icon="pi pi-times" className="p-button-text p-button-rounded p-button-sm" onClick={limpiarFiltros} />
+                    </div>
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <Card className="border border-amber-200 shadow-sm">
                         <div className="flex items-center gap-3">
@@ -376,9 +447,7 @@ export default function DashboardLotes() {
                     </Card>
                 </div>
 
-                {/* Gráficos */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Gráfico de distribución por tipo */}
                     <Card className="border border-amber-200 shadow-md">
                         <h3 className="text-xl font-semibold text-amber-800 mb-4">Distribución por Tipo</h3>
                         {tipoNaranjaChart && (
@@ -388,7 +457,6 @@ export default function DashboardLotes() {
                         )}
                     </Card>
 
-                    {/* Gráfico de peso promedio */}
                     <Card className="border border-amber-200 shadow-md">
                         <h3 className="text-xl font-semibold text-amber-800 mb-4">Peso Promedio por Tipo</h3>
                         {pesoPromedioChart && (
@@ -399,13 +467,14 @@ export default function DashboardLotes() {
                     </Card>
                 </div>
 
-                {/* Gráfico de producción por tiempo */}
                 <div className="mt-6">
                     <Card className="border border-amber-200 shadow-md">
                         <h3 className="text-xl font-semibold text-amber-800 mb-4">Evolución de la Producción</h3>
                         {produccionPorTiempoChart && (
-                            <div className="h-96">
-                                <Chart type="line" data={produccionPorTiempoChart.data} options={produccionPorTiempoChart.options} />
+                            <div className="overflow-x-auto">
+                                <div className="h-96 min-w-[600px]">
+                                    <Chart type="line" data={produccionPorTiempoChart.data} options={produccionPorTiempoChart.options} />
+                                </div>
                             </div>
                         )}
                     </Card>

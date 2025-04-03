@@ -69,4 +69,16 @@ export default class APIRepositoryLote implements ILote {
     if (!response.ok) throw new Error("Error al obtener lotes por usuario");
     return response.json();
   }
+
+  async GetLotesDetailsByDateRange(userId: number, startDate: string, endDate: string): Promise<LoteDetailsResponse[]> {
+    const url = `${this.cajasURL}/user/${userId}/with-cajas/date-range?start_date=${startDate}&end_date=${endDate}`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) throw new Error("Error al obtener lotes por rango de fechas");
+    return response.json();
+  }
 }

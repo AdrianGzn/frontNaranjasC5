@@ -11,4 +11,5 @@ export default interface ILote {
     Delete(id: number): Promise<any>
     GetLoteDetails(id: number): Promise<LoteDetailsResponse>;
     GetLotesDetailsByUserID(id: number): Promise<LoteDetailsResponse[]>;
+    GetLotesDetailsByDateRange(userId: number, startDate: string, endDate: string): Promise<LoteDetailsResponse[]>;
 }
