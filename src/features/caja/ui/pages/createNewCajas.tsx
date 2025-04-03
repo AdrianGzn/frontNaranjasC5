@@ -28,7 +28,7 @@ export default function CreateNewCajas() {
   const { addConnection, messages } = useWebSocket();
   const [cajasCargando, setCajasCargando] = useState<Caja[]>([]);
   const [users, setUsers] = useState<User[]>([]);
-  const [encargadoId, setEncargadoId] = useState<number>(0);
+  const [encargadoId, setEncargadoId] = useState<number | undefined>(0);
   const [idLote, setIdLote] = useState<number>(0)
   const [esps, setEsps] = useState<Esp32[]>([])
   const [dataUser, setDataUser] = useState<StoredUser | null>(null)
@@ -90,7 +90,7 @@ export default function CreateNewCajas() {
   }, [cajasResult, espsResult, usersResult, encargadoId, dataUser, actualizar])
 
 
-  const onCreate = (id: number) => {  //handler para crear
+  const onCreate = (id: number | undefined) => {  //handler para crear
     console.log(id);
     setEncargadoId(id);
 
@@ -114,7 +114,7 @@ export default function CreateNewCajas() {
     });
   }
 
-  const onStop = (id: number) => { // para detener la carga en las cajas
+  const onStop = (id: number | undefined) => { // para detener la carga en las cajas
     console.log(id);
     setEncargadoId(id);
 

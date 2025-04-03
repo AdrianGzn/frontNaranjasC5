@@ -7,7 +7,7 @@ interface CardCajaProps {
 
 export default function CardCaja({caja}: CardCajaProps) {
     return <div className='w-[270px] h-full'>
-        <Card title="Caja 1">
+    <Card title={caja.id}>
         <div className='flex flex-wrap justify-between'>
             <div className='w-full h-[30px] mb-2 bg-amber-500 rounded-sm text-white flex justify-center items-center'>
                 Total: {caja.cantidad}
