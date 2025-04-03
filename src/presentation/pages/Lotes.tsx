@@ -14,6 +14,9 @@ import APIRepositoryLote from '../../features/lote/infrastructure/apiLote.reposi
 import useGetLotes from '../../features/lote/infrastructure/consult_lotes.controller';
 import { CreateLote } from '../../features/lote/application/create_lote.usecase';
 import { AuthService } from '../../shared/hooks/auth_user.service';
+import useGetEspsId from '../../features/esp32/infrastructure/getEsp32IdController';
+import Esp32 from '../../features/esp32/domain/esp32.entity';
+import { CreateLoteRequest } from '../../features/lote/domain/CreateLoteRequest';
 
 export default function Lotes() {
     const { consultLotes, lotes: lotesOriginales, error } = useGetLotes(AuthService.getUserData()?.id || 0);
@@ -21,6 +24,13 @@ export default function Lotes() {
     const [lotes, setLotes] = useState<Lote[]>([]);
     const [dialogVisible, setDialogVisible] = useState<boolean>(false);
     const [observaciones, setObservaciones] = useState<string>('');
+
+    // Estado para ESP32
+    const [selectedEsp32, setSelectedEsp32] = useState<Esp32 | null>(null);
+    const [availableEsp32s, setAvailableEsp32s] = useState<Esp32[]>([]);
+
+    // Obtener las ESP32 del usuario
+    const { espsResult, loading: loadingEsps, error: errorEsps, consultEspsId } = useGetEspsId();
 
     useEffect(() => {
         consultLotes()
@@ -30,6 +40,21 @@ export default function Lotes() {
         console.log("get lotes", lotesOriginales)
         setLotes(lotesOriginales);
     }, [lotesOriginales]);
+
+    // Añadir useEffect para cargar ESP32s
+    useEffect(() => {
+        const userId = AuthService.getUserData()?.id;
+        if (userId) {
+            consultEspsId(userId);
+        }
+    }, []);
+
+    // Actualizar lista de ESP32s disponibles
+    useEffect(() => {
+        if (espsResult && espsResult.length > 0) {
+            setAvailableEsp32s(espsResult);
+        }
+    }, [espsResult]);
 
     // Crear un nuevo lote con el caso de uso y el repositorio
     const repository: ILote = new APIRepositoryLote();
@@ -60,25 +85,34 @@ export default function Lotes() {
             showToast('error', 'Error', 'Usuario no encontrado');
             return;
         }
+
+        if (!selectedEsp32) {
+            showToast('error', 'Error', 'Debe seleccionar un dispositivo ESP32');
+            return;
+        }
+
         try {
-            // Crear un nuevo objeto lote con los campos requeridos
-            const loteParaCrear: Lote = {
-                id: 0, // El backend asignará el ID real
-                fecha: new Date(),
-                observaciones: observaciones,
-                user_id: user.id
+            // Crear la estructura de solicitud según CreateLoteRequest
+            const loteRequest: CreateLoteRequest = {
+                lote: {
+                    observaciones: observaciones,
+                    user_id: user.id
+                },
+                esp32_fk: selectedEsp32.id
             };
 
-            // Llamar al caso de uso con el objeto lote
-            const nuevoLote = await createLoteUsecase.execute(loteParaCrear);
+            // Enviar solicitud al repositorio
+            const response = await repository.Create(loteRequest);
 
-            // Actualizar el estado local con el nuevo lote
-            setLotes(prevLotes => [...prevLotes, nuevoLote]);
+            // Actualizar estado local con el nuevo lote
+            setLotes(prevLotes => [...prevLotes, response.lote]);
 
-            // Cerrar el diálogo
+            // Cerrar el diálogo y limpiar selección
             setDialogVisible(false);
+            setSelectedEsp32(null);
+            setObservaciones('');
 
-            showToast('success', 'Éxito', `Lote #${nuevoLote.id} creado exitosamente`);
+            showToast('success', 'Éxito', `Lote #${response.lote.id} creado exitosamente con ${response.cajas.length} cajas`);
         } catch (error: any) {
             showToast('error', 'Error', error.message || 'Error al crear el lote');
         }
@@ -369,7 +403,6 @@ export default function Lotes() {
                 )}
             </div>
 
-            {/* Diálogo para crear nuevo lote */}
             <Dialog
                 visible={dialogVisible}
                 style={{ width: '450px' }}
@@ -379,6 +412,27 @@ export default function Lotes() {
                 footer={dialogFooter}
                 onHide={() => setDialogVisible(false)}
             >
+                <div className="field mb-4">
+                    <label htmlFor="esp32" className="font-medium text-amber-800 block mb-2">Dispositivo ESP32</label>
+                    <Dropdown
+                        id="esp32"
+                        value={selectedEsp32}
+                        options={availableEsp32s}
+                        onChange={(e) => setSelectedEsp32(e.value)}
+                        optionLabel="id"
+                        placeholder="Seleccione un dispositivo ESP32"
+                        className="w-full"
+                        showClear
+                        filter
+                        required
+                    />
+                    {availableEsp32s.length === 0 && (
+                        <small className="text-red-500 mt-1 block">
+                            No hay dispositivos ESP32 disponibles. Por favor, registre uno primero.
+                        </small>
+                    )}
+                </div>
+
                 <div className="field">
                     <label htmlFor="observaciones" className="font-medium text-amber-800">Observaciones</label>
                     <InputTextarea

@@ -27,12 +27,6 @@ export default function TableViewEsps({ esps, handleDelete }: any) {
                     <div className="mb-3">
                         <h3 className="text-xl font-bold text-amber-800 mb-1">Id de la Esp: {esp.id || 'Id no encontrada'}</h3>
                     </div>
-                    <div className="flex-grow">
-                        <div className="bg-amber-50 p-3 rounded mb-3">
-                            <p className="text-sm text-amber-600">Id del dueño:</p>
-                            <p className="font-semibold">{esp.idJefe || 'Id no encontrada'}</p>
-                        </div>
-                    </div>
                     <div className="pt-3 mt-auto border-t border-amber-100">
                         <Button
                             label="Eliminar"
@@ -53,9 +47,6 @@ export default function TableViewEsps({ esps, handleDelete }: any) {
                     <div className="flex flex-col md:flex-row gap-2 md:items-center justify-between">
                         <span className="text-sm text-amber-700">
                             <i className="pi pi-id-card mr-2"></i> Id de la Esp: {esp.id || 'Id no encontrada'}
-                        </span>
-                        <span className="text-sm text-amber-700">
-                            <i className="pi pi-user mr-2"></i> Id del dueño: {esp.idJefe || 'Id no encontrada'}
                         </span>
                         <Button
                             label="Eliminar"

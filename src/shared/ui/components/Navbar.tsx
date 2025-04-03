@@ -55,6 +55,22 @@ export const Navbar = () => {
                                     onClick={() => navigate("/lotes")}
                                 />
                             </li>
+                            <li>
+                                <Button
+                                    label="Módulos ESP32"
+                                    icon="pi pi-th-large"
+                                    className="p-button-outlined p-button-sm"
+                                    onClick={() => navigate("/esp/alta")}
+                                />
+                            </li>
+                            <li>
+                                <Button
+                                    label="Rendimientos"
+                                    icon="pi pi-chart-bar"
+                                    className="p-button-outlined p-button-sm"
+                                    onClick={() => navigate("/cajas/stadistics")}
+                                />
+                            </li>
                             {(isOwner || (user && user.rol === 'dueño')) && (
                                 <li>
                                     <Button

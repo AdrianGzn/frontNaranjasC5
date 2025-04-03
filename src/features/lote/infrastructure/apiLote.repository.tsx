@@ -1,11 +1,13 @@
 import ILote from "../domain/lote.repository";
 import Lote from "../domain/lote.entity";
+import { CreateLoteRequest } from "../domain/CreateLoteRequest";
+import { CreatedLoteResponse } from "../domain/CreatedLoteResponse";
 
 export default class APIRepositoryLote implements ILote {
 
   private cajasURL = `${import.meta.env.VITE_API_URL}/lotes`;
-  async Create(lote: Lote): Promise<Lote> {
-    const response = await fetch(`${this.cajasURL}/`, {
+  async Create(lote: CreateLoteRequest): Promise<CreatedLoteResponse> {
+    const response = await fetch(`${this.cajasURL}/with-cajas`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(lote),
@@ -33,7 +35,7 @@ export default class APIRepositoryLote implements ILote {
   async ConsultLotes(id: number): Promise<Lote[]> {
     const response = await fetch(`${this.cajasURL}/user/${id}`, {
       method: "GET",
-      headers: { "Content-Type": "application/json" },      
+      headers: { "Content-Type": "application/json" },
     });
     console.log("response", response.body)
     if (!response.ok) throw new Error("Error al consultar el lote");

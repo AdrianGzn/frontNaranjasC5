@@ -8,6 +8,7 @@ import { LoginResponse } from "../../../users/domain/LoginResponse";
 import { User } from "../../../users/domain/user.entity";
 import useGetUsers from "../../../users/infrastructure/controllers/getAllUsersController";
 import { Chart } from "primereact/chart";
+import { AuthService } from "../../../../shared/hooks/auth_user.service";
 
 export default function StadisticsCajas() {
     const [myLotes, setMyLotes] = useState<Lote[]>([]);
@@ -16,7 +17,7 @@ export default function StadisticsCajas() {
     const [chartData, setChartData] = useState<any[]>([]); // Estado para las gráficas
 
     const { cajasResult, consultCajas } = useGetByLoteCajas();
-    const { lotes, consultLotes } = useGetLotes();
+    const { lotes, consultLotes } = useGetLotes(AuthService.getUserData()?.id || 0);
     const { usersResult, consultUsers } = useGetUsers();
 
     useEffect(() => {
