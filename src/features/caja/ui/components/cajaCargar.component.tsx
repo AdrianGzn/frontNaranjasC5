@@ -36,7 +36,6 @@ export default function CajasCargar({ onCreate, onStop, suggestions, esp32 }: Ca
 
     return (
         <form className="w-[95%] mt-5 flex flex-col bg-white p-5 rounded-xl shadow-md">
-            {/* Input de búsqueda */}
             <div className="mb-4">
                 <AutoComplete
                     value={value}
@@ -48,20 +47,20 @@ export default function CajasCargar({ onCreate, onStop, suggestions, esp32 }: Ca
                 />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-wrap gap-4">
                 {esp32.map((item: Esp32) => (
-                    <div key={item.id} className="bg-gray-100 p-4 rounded-lg shadow flex flex-col justify-between">
-                        <p className="text-gray-700">
+                    <div key={item.id} className="bg-gray-100 p-4 rounded-lg shadow flex flex-col items-center max-w-sm mx-auto">
+                        <p className="text-gray-700 text-center">
                             <strong>ESP32:</strong> {item.id}
                             <br />
                             <strong>Jefe:</strong> {item.id_propietario}
                         </p>
 
-                        <div className="mt-4 flex justify-between">
-                            <Button type="button" className="p-button-success" onClick={handleCreate}>
+                        <div className="mt-2 flex gap-1 justify-center">
+                            <Button type="button" className="p-button-success p-button-sm" onClick={handleCreate}>
                                 Cargar naranjas
                             </Button>
-                            <Button type="button" className="p-button-danger" onClick={handleStop}>
+                            <Button type="button" className="p-button-danger p-button-sm" onClick={handleStop}>
                                 Finalizar carga
                             </Button>
                         </div>
