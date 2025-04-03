@@ -8,6 +8,8 @@ import CreateNewCajas from './features/caja/ui/pages/createNewCajas.tsx';
 import Lotes from './presentation/pages/Lotes.tsx';
 import { ProtectedRoute } from './shared/userContext.tsx';
 import Users from './presentation/pages/Users.tsx';
+import AltaDeEsp from './features/esp32/ui/pages/altaDeEsp.page.tsx';
+import StadisticsCajas from './features/caja/ui/pages/stadisticsCajas.page.tsx';
 
 function App() {
 
@@ -18,7 +20,9 @@ function App() {
             <Route path="/" element={<Login/>} />
             <Route path="/home" element={<Home/>} />
             <Route path='/cajas/create' element={<CreateNewCajas/>}></Route>
+            <Route path='/cajas/stadistics' element={<StadisticsCajas/>}></Route>
             <Route path='/lotes' element={<Lotes/>}></Route>
+            <Route path='/esp/alta' element={<AltaDeEsp/>}></Route>
             <Route element={<ProtectedRoute allowedRoles={['dueño']} />}>
               <Route path='/users' element={<Users/>} />
             </Route>

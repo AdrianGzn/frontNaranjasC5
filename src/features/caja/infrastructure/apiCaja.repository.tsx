@@ -2,7 +2,7 @@ import ICaja from "../domain/caja.repository";
 import Caja from "../domain/caja.entity";
 
 export default class APIRepositoryCaja implements ICaja {
-  private cajasURL = `${import.meta.env.API_URL}/cajas`;
+  private cajasURL = `${import.meta.env.VITE_API_URL}/cajas`;
 
   async Create(caja: Caja): Promise<Caja> {
     const response = await fetch(`${this.cajasURL}`, {
@@ -24,14 +24,14 @@ export default class APIRepositoryCaja implements ICaja {
     return response.json();
   }
 
-  async ConsultCaja(): Promise<Caja> {
-    const response = await fetch(`${this.cajasURL}/current`);
+  async ConsultCaja(id: number): Promise<Caja> {
+    const response = await fetch(`${this.cajasURL}/${id}`);
     if (!response.ok) throw new Error("Error al consultar la caja");
     return response.json();
   }
 
   async ConsultCajas(): Promise<Caja[]> {
-    const response = await fetch(this.cajasURL);
+    const response = await fetch(`${this.cajasURL}/`);
     if (!response.ok) throw new Error("Error al consultar las cajas");
     return response.json();
   }
@@ -40,6 +40,12 @@ export default class APIRepositoryCaja implements ICaja {
     const response = await fetch(`${this.cajasURL}/${id}`, {
       method: "DELETE",
     });
+    if (!response.ok) throw new Error("Error al eliminar la caja");
+    return response.json();
+  }
+
+  async GetByLote(id: number): Promise<Caja[]> {
+    const response = await fetch(`${this.cajasURL}/cajas/lote/${id}`);
     if (!response.ok) throw new Error("Error al eliminar la caja");
     return response.json();
   }

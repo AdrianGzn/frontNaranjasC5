@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Dashboard from "../../../../shared/ui/pages/dashboard.component";
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
@@ -11,84 +11,158 @@ import { useWebSocket } from "../../../../shared/hooks/websocket.provider";
 import { User } from "../../../users/domain/user.entity";
 import useCreateLote from "../../../lote/infrastructure/create_lote.controller";
 import useCreateCaja from "../../infrastructure/createCaja.controller";
+import Lote from "../../../lote/domain/lote.entity";
+import useGetCajas from "../../infrastructure/consultCajas.controller";
+import useAsignCaja from "../../infrastructure/asignCaja.controller";
+import useGetEsps from "../../../esp32/infrastructure/getEsps.controller";
+import Esp32 from "../../../esp32/domain/esp32.entity";
+import { LoginResponse } from "../../../users/domain/LoginResponse";
+import useGetUsers from "../../../users/infrastructure/controllers/getAllUsersController";
+import { useCajasStore } from "../../../../data/cajasStore";
+import useGetEspsId from "../../../esp32/infrastructure/getEsp32IdController";
+import { getEsp32Id } from "../../../esp32/application/getEsp32IsUseCase";
+import { AuthService, StoredUser } from "../../../../shared/hooks/auth_user.service";
 
 export default function CreateNewCajas() {
   const [size, setSize] = useState<'small' | 'large' | 'normal' | undefined>('small');
-  const [cajas, setCajas] = useState<Caja[]>([]);
-  const [cajasCargando, setCajasCargando] = useState<Caja[]>([])
-  const [users, setUsers] = useState<User[]>([])
-
+  const { addConnection, messages } = useWebSocket();
+  const [cajasCargando, setCajasCargando] = useState<Caja[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [encargadoId, setEncargadoId] = useState<number>(0);
+  const [idLote, setIdLote] = useState<number>(0)
+  const [esps, setEsps] = useState<Esp32[]>([])
+  const [dataUser, setDataUser] = useState<StoredUser | null>(null)
+  const { addCaja, cajasStore } = useCajasStore()
+  const [actualizar, setActialuzar] = useState<boolean>(false);
+  const { lote, createLote } = useCreateLote();
+  const { createCaja } = useCreateCaja();
+  const { cajasResult, consultCajas, error, loading } = useGetCajas();
+  const { asignCaja } = useAsignCaja();
+  const { espsResult, consultEspsId } = useGetEspsId();
+  const { usersResult, consultUsers } = useGetUsers();
+  const [data, setData] = useState<any[]>([])
   const sizeOptions = [
     { label: 'Small', value: 'small' },
     { label: 'Medium', value: 'normal' },
     { label: 'Large', value: 'large' }
   ];
-
   useEffect(() => {
-    setCajas([ //cajas del patrón
-      { id: 1, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100 },
-      { id: 2, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100 },
-      { id: 3, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100 },
-      { id: 4, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100 },
-      { id: 5, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100 },
-      { id: 6, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100 },
-      { id: 7, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100 },
-      { id: 8, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100 },
-      { id: 9, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100 },
-    ]);
-    setCajasCargando([ //cajas cn status = cargando
-      { id: 1, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100 },
-      { id: 2, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100 },
-      { id: 3, descripción: 'Caja 1', peso_total: 100, precio: 10, lote_fk: 1, encargado_fk: 1, cantidad: 100 }
-    ]);
-    setUsers([
-      {id: 1, name: "Juan Pérez", username: "juanp", email: "juan.perez@example.com", password: "123456", rol: "admin"},
-      {id: 2, name: "María López", username: "marial", email: "maria.lopez@example.com", password: "abcdef", rol: "user"},
-      {id: 3, name: "José Gómez", username: "carlitos", email: "carlos.gomez@example.com", password: "qwerty", rol: "moderator"},
-      {id: 4, name: "Ana Rodríguez", username: "anar", email: "ana.rodriguez@example.com", password: "password123", rol: "user"},
-      {id: 5, name: "Luis Fernández", username: "luisf", email: "luis.fernandez@example.com", password: "abc123", rol: "admin"},
-      {id: 6, name: "Sofía Martínez", username: "sofim", email: "sofia.martinez@example.com", password: "sofipass", rol: "user"},
-      {id: 7, name: "Josefina Sánchez", username: "pedros", email: "pedro.sanchez@example.com", password: "pedro321", rol: "moderator"}
-  ]);
-  
+    const userData = AuthService.getUserData()
+    console.log("user data", userData)
+    if (userData) {
+      setDataUser(userData);
+      const id = userData.id;
+      consultEspsId(id)
+      consultUsers();
+      consultCajas();
+      setData(cajasResult)
+      console.log("esp32 get it", espsResult)
+    }
   }, []);
 
-  const onCreate = (id: number) => {
-    console.log(id);
-    const loteCreted = useCreateLote({ id: 1, fecha: '', observaciones: ''})
-    //const cajaCreated1 = useCreateCaja({id: 0, descripción: 'string', peso_total: 0, precio: 0, lote_fk: loteCreted.lote.id, encargado_fk: id, cantidad: 0})
-
-  }
-
-  const onStop = (id: number) => {
-    console.log(id);
-    
-  }
-
-  //para el websocket
-  const {ws}: any = useWebSocket();
   useEffect(() => {
-    if (ws) {
-      const handleMessage = (event: any) => {
-        const message = JSON.parse(event.data);
-        console.log('Mensaje recibido:\n', message);
-        //aquí se pueden implementar otras acciones
-      };
-      ws.addEventListener('message', handleMessage);
+    if (dataUser) {
+      //esps del jefe
+      let filteredEsps = espsResult.filter((esp: Esp32) => esp.id_propietario === dataUser.id_jefe)
+      console.log("esp32 filtreds", filteredEsps)
+      setEsps(filteredEsps);
 
-      return () => {
-        ws.removeEventListener('message', handleMessage);
-      };
+      //Usuarios con el mismo jefe
+
+      let filteredUsers = usersResult.filter((user: User) => user.idJefe === dataUser.id_jefe)
+      console.log("users", filteredUsers)
+      setUsers(filteredUsers)
+
+      //cajas "cargando" del usuario
+      console.log("cajas result", cajasResult)
+
+      let cajasFiltered = cajasResult.filter((myCaja: Caja) => myCaja.estado === '')
+      setCajasCargando(cajasFiltered);
+
+      //todas las cajas del jefe
+      const cajasJefe = cajasResult.filter((myCaja: Caja) =>
+        esps.some((esp) => esp.id === myCaja.esp32Fk)
+      );
+      cajasJefe.map((item) => {
+        cajasStore.push(item)
+      })
     }
-  }, [ws]);
+  }, [cajasResult, espsResult, usersResult, encargadoId, dataUser, actualizar])
+
+
+  const onCreate = (id: number) => {  //handler para crear
+    console.log(id);
+    setEncargadoId(id);
+
+    const newLote: Lote = { id: 0, fecha: '', observaciones: '', user_id: dataUser?.id };
+    console.log("new lote",  newLote)
+    createLote(newLote).then(() => { //crea mi lote
+      if (lote) {
+        setIdLote(lote.id);
+
+        const nuevasCajas: Caja[] = [
+          { id: 0, descripción: 'cargando', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: id, cantidad: 0, estado: '', esp32Fk: '' },
+          { id: 0, descripción: 'cargando', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: id, cantidad: 0, estado: '', esp32Fk: '' },
+          { id: 0, descripción: 'cargando', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: id, cantidad: 0, estado: '', esp32Fk: '' }
+        ];
+
+        setCajasCargando(nuevasCajas);
+        nuevasCajas.forEach((caja) => createCaja(caja)); //crea mis cajas
+      } else {
+        console.log('lote no creado');
+      }
+    });
+  }
+
+  const onStop = (id: number) => { // para detener la carga en las cajas
+    console.log(id);
+    setEncargadoId(id);
+
+    consultCajas();
+    let misCajas: Caja[] = cajasResult.filter((miCaja: Caja) => miCaja.estado === 'cargando' && miCaja.encargado_fk === encargadoId)
+    misCajas.forEach((caja: Caja) => {
+      caja.id = caja.id,
+        caja.descripción = caja.descripción,
+        caja.peso_total = caja.peso_total,
+        caja.precio = caja.precio,
+        caja.lote_fk = caja.lote_fk,
+        caja.encargado_fk = caja.encargado_fk,
+        caja.cantidad = caja.cantidad,
+        caja.estado = 'terminado',
+        caja.esp32Fk = caja.esp32Fk
+    });
+    misCajas.forEach((caja: Caja) => asignCaja(caja.id, caja));
+    setActialuzar(!actualizar)
+  }
+
+
+
+  //websocket
+  useEffect(() => {
+    const socket: WebSocket = addConnection("ws://52.4.21.111:8085/cajas/")
+
+    socket.onopen = (message) => {
+      console.log("message connect", message)
+    }
+
+    socket.onmessage = (message: any) => {
+      const data = JSON.parse(message.data);
+      addCaja(data)
+    }
+
+    return () => {
+      socket.close()
+      console.log("ws close");
+    }
+  }, [])
 
   return (
     <div className="w-full h-screen">
       <Dashboard>
         <div className="w-full h-full flex flex-col items-center">
-          <CajasCargar suggestions={users} onCreate={onCreate} onStop={onStop}></CajasCargar>
+          <CajasCargar suggestions={users} onCreate={onCreate} onStop={onStop} esp32={espsResult}></CajasCargar>
           <CajasCargando cajas={cajasCargando}></CajasCargando>
-          <TableCajas size={size} setSize={setSize} sizeOptions={sizeOptions} cajas={cajas} ></TableCajas>
+          <TableCajas size={size} setSize={setSize} sizeOptions={sizeOptions} cajas={cajasStore} ></TableCajas>
         </div>
       </Dashboard>
     </div>

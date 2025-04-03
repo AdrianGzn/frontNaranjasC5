@@ -1,5 +1,5 @@
 import ILote from "../domain/lote.repository";
-import { Lote } from "../domain/lote.entity";
+import Lote from "../domain/lote.entity";
 
 export class ConsultLotes {
   private repository: ILote;

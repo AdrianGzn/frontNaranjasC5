@@ -1,9 +1,10 @@
-import { ApiUserRepository } from "../infrastructure/apiUser.repository";
+import { IUserRepository } from "../domain/IUser.repository";
+
 
 export class GetAllUsersUseCase {
-    private userRepository: ApiUserRepository;
+    private userRepository: IUserRepository;
 
-    constructor(userRepository: ApiUserRepository) {
+    constructor(userRepository: IUserRepository) {
         this.userRepository = userRepository;
     }
 

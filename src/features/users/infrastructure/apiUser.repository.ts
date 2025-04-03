@@ -4,7 +4,7 @@ import { LoginRequest } from "../domain/LoginRequest";
 import { LoginResponse } from "../domain/LoginResponse";
 
 export class ApiUserRepository implements IUserRepository {
-    private usersURL = `http://localhost:8080/users`;
+    private usersURL = `${import.meta.env.VITE_API_URL}/users`;
     private headers = {
         "Content-Type": "application/json",
         // "Access-Control-Allow-Origin": "*",

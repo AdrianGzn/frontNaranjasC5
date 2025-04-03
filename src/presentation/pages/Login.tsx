@@ -34,7 +34,8 @@ export const Login = () => {
 
     const roles = [
         { label: 'Encargado', value: 'encargado' },
-        { label: 'Recolector', value: 'recolector' }
+        { label: 'Recolector', value: 'recolector' },
+        { label: 'Dueño', value: 'dueño' }
     ];
 
     // Validar email con expresión regular
@@ -59,7 +60,7 @@ export const Login = () => {
 
                 if (response.token && response.user) {
                     AuthService.saveUserData(response.token, response.user);
-
+                    localStorage.setItem('dataUserLoged', JSON.stringify(response))
                     toast.current?.show({
                         severity: 'success',
                         summary: 'Éxito',
@@ -114,7 +115,8 @@ export const Login = () => {
                 username: registerUsername,
                 email: registerEmail, // Incluir el email
                 password: registerPassword,
-                rol: registerRol
+                rol: registerRol,
+                idJefe: 0
             };
 
             await createUserUseCase.execute(newUser);
