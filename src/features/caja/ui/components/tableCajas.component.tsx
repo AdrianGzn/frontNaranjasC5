@@ -23,7 +23,7 @@ export default function TableCajas({size, setSize, sizeOptions, cajas}: any) {
             style={{ width: '100%', maxHeight: '100%', overflowY: 'auto', fontSize: '11px' }} 
         >
             <Column field="id" header="Code" />
-            <Column field="descripción" header="Descripción" />
+            <Column field="descripcion" header="Descripción" />
             <Column field="peso_total" header="Peso total" />
             <Column field="precio" header="Precio" />
             <Column field="hora_inicio" header="Hora inicio" />

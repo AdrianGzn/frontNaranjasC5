@@ -63,12 +63,20 @@ export const Navbar = () => {
                                     onClick={() => navigate("/esp/alta")}
                                 />
                             </li>
-                            <li>
+                            {/* <li>
                                 <Button
                                     label="Rendimientos"
                                     icon="pi pi-chart-bar"
                                     className="p-button-outlined p-button-sm"
                                     onClick={() => navigate("/cajas/stadistics")}
+                                />
+                            </li> */}
+                            <li>
+                                <Button
+                                    label="Dashboard General"
+                                    icon="pi pi-chart-line"
+                                    className="p-button-outlined"
+                                    onClick={() => navigate('/dashboard-lotes')}
                                 />
                             </li>
                             {(isOwner || (user && user.rol === 'dueño')) && (

@@ -1,6 +1,6 @@
 export default interface Caja {
     id: number
-    descripción: string
+    descripcion: string
     peso_total: number
     precio: number
     lote_fk: number

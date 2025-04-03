@@ -2,6 +2,7 @@ import ILote from "../domain/lote.repository";
 import Lote from "../domain/lote.entity";
 import { CreateLoteRequest } from "../domain/CreateLoteRequest";
 import { CreatedLoteResponse } from "../domain/CreatedLoteResponse";
+import { LoteDetailsResponse } from "../domain/LoteDetailsResponse";
 
 export default class APIRepositoryLote implements ILote {
 
@@ -48,6 +49,24 @@ export default class APIRepositoryLote implements ILote {
 
     });
     if (!response.ok) throw new Error("Error al eliminar el lote");
+    return response.json();
+  }
+
+  async GetLoteDetails(id: number): Promise<LoteDetailsResponse> {
+    const response = await fetch(`${this.cajasURL}/with-cajas/${id}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response.ok) throw new Error("Error al obtener detalles del lote");
+    return response.json();
+  }
+
+  async GetLotesDetailsByUserID(userId: number): Promise<LoteDetailsResponse[]> {
+    const response = await fetch(`${this.cajasURL}/user/${userId}/with-cajas`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response.ok) throw new Error("Error al obtener lotes por usuario");
     return response.json();
   }
 }
