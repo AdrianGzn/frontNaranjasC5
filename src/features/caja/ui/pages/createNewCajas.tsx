@@ -61,6 +61,7 @@ export default function CreateNewCajas() {
   }, []);
 
   useEffect(() => {
+
     if (dataUser) {
       //esps del jefe
       let filteredEsps = espsResult.filter((esp: Esp32) => esp.id_propietario === dataUser.id_jefe)
@@ -76,7 +77,7 @@ export default function CreateNewCajas() {
       //cajas "cargando" del usuario
       console.log("cajas result", cajasResult)
 
-      let cajasFiltered = cajasResult.filter((myCaja: Caja) => myCaja.estado === '')
+      let cajasFiltered = cajasResult.filter((myCaja: Caja) => myCaja.estado === 'CARGANDO' && myCaja.encargado_fk === dataUser.id)
       setCajasCargando(cajasFiltered);
 
       //todas las cajas del jefe
@@ -95,15 +96,15 @@ export default function CreateNewCajas() {
     setEncargadoId(id);
 
     const newLote: Lote = { id: 0, fecha: '', observaciones: '', user_id: dataUser?.id };
-    console.log("new lote",  newLote)
+    console.log("new lote", newLote)
     createLote(newLote).then(() => { //crea mi lote
       if (lote) {
         setIdLote(lote.id);
 
         const nuevasCajas: Caja[] = [
-          { id: 0, descripcion: 'cargando', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: id, cantidad: 0, estado: '', esp32Fk: '' },
-          { id: 0, descripcion: 'cargando', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: id, cantidad: 0, estado: '', esp32Fk: '' },
-          { id: 0, descripcion: 'cargando', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: id, cantidad: 0, estado: '', esp32Fk: '' }
+          { id: 0, descripcion: 'CARGANDO', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: id, cantidad: 0, estado: '', esp32Fk: '' },
+          { id: 0, descripcion: 'CARGANDO', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: id, cantidad: 0, estado: '', esp32Fk: '' },
+          { id: 0, descripcion: 'CARGANDO', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: id, cantidad: 0, estado: '', esp32Fk: '' }
         ];
 
         setCajasCargando(nuevasCajas);
@@ -119,7 +120,7 @@ export default function CreateNewCajas() {
     setEncargadoId(id);
 
     consultCajas();
-    let misCajas: Caja[] = cajasResult.filter((miCaja: Caja) => miCaja.estado === 'cargando' && miCaja.encargado_fk === encargadoId)
+    let misCajas: Caja[] = cajasResult.filter((miCaja: Caja) => miCaja.estado === '')
     misCajas.forEach((caja: Caja) => {
       caja.id = caja.id,
         caja.descripcion = caja.descripcion,
@@ -134,8 +135,6 @@ export default function CreateNewCajas() {
     misCajas.forEach((caja: Caja) => asignCaja(caja.id, caja));
     setActialuzar(!actualizar)
   }
-
-
 
   //websocket
   useEffect(() => {
@@ -162,7 +161,6 @@ export default function CreateNewCajas() {
         <div className="w-full h-full flex flex-col items-center">
           <CajasCargar suggestions={users} onCreate={onCreate} onStop={onStop} esp32={espsResult}></CajasCargar>
           <CajasCargando cajas={cajasCargando}></CajasCargando>
-          <TableCajas size={size} setSize={setSize} sizeOptions={sizeOptions} cajas={cajasStore} ></TableCajas>
         </div>
       </Dashboard>
     </div>

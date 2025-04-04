@@ -6,9 +6,6 @@ export default function Dashboard ({children}: any) {
         <div className="w-full h-[8%]">
             <Navbar />
         </div>
-        <div className="w-14 h-[92%] bg-white">
-            Mi barra
-        </div>
         <div 
             className="flex-1 rounded-2xl shadow-inner"
             style={{ backgroundImage: "linear-gradient(to bottom, #e2e8f0 60%, oklch(0.954 0.038 75.164) 100%)" }}

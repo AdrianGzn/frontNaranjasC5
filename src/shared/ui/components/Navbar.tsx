@@ -89,16 +89,6 @@ export const Navbar = () => {
                                     />
                                 </li>
                             )}
-                            {(isOwner || (user && user.rol === 'dueño')) && (
-                                <li>
-                                    <Button
-                                        label="ESP32"
-                                        icon="pi pi-cog"
-                                        className="p-button-outlined p-button-sm"
-                                        onClick={() => navigate("/esp/alta")}
-                                    />
-                                </li>
-                            )}
                         </ul>
                     </div>
                     <div className="flex space-x-2 items-center">

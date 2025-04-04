@@ -109,7 +109,7 @@ export const Home = () => {
                             <Button
                                 label="Ver Estadísticas"
                                 className="p-button-outlined"
-                                onClick={() => { navigate("/cajas/stadistics") }}
+                                onClick={() => { navigate("/dashboard-lotes") }}
                             />
                         </div>
                     </Card>
@@ -123,7 +123,7 @@ export const Home = () => {
                                 <Button
                                     label="Gestión de Usuarios"
                                     className="p-button-outlined"
-                                    onClick={() => { navigate("") }}
+                                    onClick={() => { navigate("/users") }}
                                 />
                             </div>
                         </Card>
