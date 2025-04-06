@@ -26,6 +26,9 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
                         <a href="/naranjas" className="p-2 rounded-full hover:bg-amber-100 transition-colors">
                             <i className="pi pi-circle-fill text-amber-600 text-xl"></i>
                         </a>
+                        <a href="/esp32/monitor" className="p-2 rounded-full hover:bg-amber-100 transition-colors">
+                            <i className="pi pi-desktop text-amber-600 text-xl"></i>
+                        </a>
                     </div>
                 </div>
 

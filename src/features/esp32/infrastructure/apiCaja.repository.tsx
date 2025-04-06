@@ -57,4 +57,18 @@ export default class APIRepositoryEsps implements IEsp32 {
     if (!response.ok) throw new Error("Error al eliminar la esp");
     return response.json();
   }
+
+  async StopLoading(esp32Id: string): Promise<Esp32> {
+    const response = await fetch(`${import.meta.env.VITE_API_URL_API_STATUS}/esp32/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            "esp32_fk": esp32Id,
+            "content": "esperando"
+        }),
+    });
+    
+    if (!response.ok) throw new Error("Error al detener la carga de la ESP32");
+    return response.json();
+  }
 }

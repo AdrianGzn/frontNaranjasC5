@@ -43,7 +43,7 @@ export const Login = () => {
         return String(email)
             .toLowerCase()
             .match(
-                /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+                /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
             );
     };
 
@@ -109,15 +109,30 @@ export const Login = () => {
 
         setRegisterLoading(true);
         try {
-            const newUser: User = {
+            // Get the current user's ID if they're logged in (for employee registration by supervisor)
+            const currentUser = AuthService.getUserData();
+            console.log("Datos del usuario actual:", currentUser);
+
+            // Base user object
+            const newUser: any = {
                 id: 0, // El ID se asignará en el servidor
                 name: registerName,
                 username: registerUsername,
-                email: registerEmail, // Incluir el email
+                email: registerEmail,
                 password: registerPassword,
                 rol: registerRol,
-                idJefe: 0
             };
+
+            // Add id_jefe only if a supervisor is logged in and creating the user
+            if (currentUser && currentUser.id) {
+                console.log("ID del jefe encontrado:", currentUser.id);
+                newUser.id_jefe = currentUser.id;
+            } else {
+                console.log("No se encontró ID del jefe o no hay usuario logueado");
+            }
+
+            // Log the user object that will be sent
+            console.log("Usuario a crear:", newUser);
 
             await createUserUseCase.execute(newUser);
             setRegisterLoading(false);

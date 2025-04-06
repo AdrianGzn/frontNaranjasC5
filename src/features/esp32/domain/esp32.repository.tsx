@@ -8,4 +8,5 @@ export default interface IEsp32 {
     GetEsps(): Promise<Esp32[]>
     Delete(id: string): any
     GetEspIdWaiting(id: number | undefined): Promise<Esp32[]>
+    StopLoading(esp32Id: string): Promise<Esp32>
 }

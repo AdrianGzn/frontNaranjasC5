@@ -81,4 +81,17 @@ export default class APIRepositoryLote implements ILote {
     if (!response.ok) throw new Error("Error al obtener lotes por rango de fechas");
     return response.json();
   }
+
+  async FinishLote(id: number): Promise<Lote> {
+    const response = await fetch(`${this.cajasURL}/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            "estado": "terminado"
+        }),
+    });
+    
+    if (!response.ok) throw new Error("Error al finalizar el lote");
+    return response.json();
+  }
 }

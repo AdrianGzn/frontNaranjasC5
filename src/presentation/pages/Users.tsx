@@ -135,10 +135,10 @@ export const Users = () => {
             id: 0,
             name: '',
             username: '',
-            email: '', // Inicializar email vacío
+            email: '',
             password: '',
             rol: '',
-            idJefe: 0
+            idJefe: currentUser?.id || 0 // Set the current user's ID as the supervisor
         });
         setEditMode(false);
         setFormSubmitted(false);
@@ -203,9 +203,23 @@ export const Users = () => {
             return;
         }
 
+        // Ensure idJefe is set to current user's ID for new users
+        if (!editMode) {
+            formUser.idJefe = currentUser?.id || 0;
+        }
+
         try {
+            // Create a new object with the correct property name for the backend
+            const userToSend = {
+                ...formUser,
+                id_jefe: formUser.idJefe, // Add the snake_case version for the backend
+            };
+
+            // Log the user data being sent to the server
+            console.log("Usuario a enviar:", userToSend);
+
             if (editMode) {
-                await updateUserUseCase.execute(formUser);
+                await updateUserUseCase.execute(userToSend);
                 setUsers(users.map(u => u.id === formUser.id ? formUser : u));
                 toast.current?.show({
                     severity: 'success',
@@ -213,7 +227,7 @@ export const Users = () => {
                     detail: 'Usuario actualizado correctamente'
                 });
             } else {
-                const newUser = await createUserUseCase.execute(formUser);
+                const newUser = await createUserUseCase.execute(userToSend);
                 setUsers([...users, newUser]);
                 toast.current?.show({
                     severity: 'success',
@@ -223,6 +237,7 @@ export const Users = () => {
             }
             setShowDialog(false);
         } catch (error) {
+            console.error("Error completo:", error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',

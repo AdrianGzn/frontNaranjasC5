@@ -9,7 +9,8 @@ export default interface ILote {
     ConsultLote(id: number): Promise<Lote>
     ConsultLotes(id: number): Promise<Lote[]>
     Delete(id: number): Promise<any>
-    GetLoteDetails(id: number): Promise<LoteDetailsResponse>;
-    GetLotesDetailsByUserID(id: number): Promise<LoteDetailsResponse[]>;
-    GetLotesDetailsByDateRange(userId: number, startDate: string, endDate: string): Promise<LoteDetailsResponse[]>;
+    GetLoteDetails(id: number): Promise<LoteDetailsResponse>
+    GetLotesDetailsByUserID(id: number): Promise<LoteDetailsResponse[]>
+    GetLotesDetailsByDateRange(userId: number, startDate: string, endDate: string): Promise<LoteDetailsResponse[]>
+    FinishLote(id: number): Promise<Lote> 
 }
