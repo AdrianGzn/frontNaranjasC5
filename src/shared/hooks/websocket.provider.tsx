@@ -5,12 +5,22 @@ type WebSocketConnections = {
 };
 
 type WebsocketMessages = {
-  [key: string]: any[]
+  [key: string]: any[];
+};
+
+export interface Naranja {
+  id: number;
+  peso: number;
+  tamano: string;
+  color: string;
+  hora: string;
+  caja_fk: number;
+  esp32_fk: string;
 }
 
 interface WebSocketProps {
   connections: WebSocketConnections;
-  messages: WebsocketMessages; 
+  messages: WebsocketMessages;
   closeConnection: (key: string) => void;
   addConnection: (url: string) => WebSocket;
 }
@@ -19,11 +29,11 @@ const WebSocketContext = createContext<WebSocketProps | undefined>(undefined);
 
 export const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
   const [connections, setConnections] = useState<WebSocketConnections>({});
-  const [messages, setMessages ] = useState<WebsocketMessages>({})
+  const [messages, setMessages] = useState<WebsocketMessages>({});
 
   const addConnection = (url: string): WebSocket => {
     const socket = new WebSocket(url);
-    return socket
+    return socket;
   };
 
   const closeConnection = (key: string) => {

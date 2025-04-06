@@ -1,16 +1,19 @@
 import { create } from "zustand";
-import { Naranja } from "../presentation/pages/Home";
+import { Naranja } from "../shared/models/Naranja";
 
 interface NaranjaState {
   naranjasStore: Naranja[];
-  addNaranja: (caja: Naranja) => void;
-  setNaranjas: (cajas: Naranja[]) => void;
+  addNaranja: (naranja: Naranja) => void;
+  setNaranjas: (naranjas: Naranja[]) => void;
   clearNaranjas: () => void;
 }
 
 export const useNaranjasStore = create<NaranjaState>((set) => ({
   naranjasStore: [],
-  addNaranja: (Naranja) => set((state) => ({ naranjasStore: [...state.naranjasStore, Naranja] })),
+  addNaranja: (naranja) =>
+    set((state) => ({
+      naranjasStore: [...state.naranjasStore, naranja]
+    })),
   setNaranjas: (naranjasStore) => set({ naranjasStore }),
   clearNaranjas: () => set({ naranjasStore: [] }),
 }));

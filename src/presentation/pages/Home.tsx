@@ -4,57 +4,81 @@ import { Card } from "primereact/card";
 import Navbar from "../../shared/ui/components/Navbar";
 import useGetEspsId from "../../features/esp32/infrastructure/getEsp32IdController";
 import { AuthService } from "../../shared/hooks/auth_user.service";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Esp32 from "../../features/esp32/domain/esp32.entity";
 import { useWebSocket } from "../../shared/hooks/websocket.provider";
 import { useNaranjasStore } from "../../data/naranjaStore";
 import useGetLotes from "../../features/lote/infrastructure/consult_lotes.controller";
 import Lote from "../../features/lote/domain/lote.entity";
-
-export interface Naranja {
-    id: number
-    peso: number
-    tamano: number
-    color: string
-    hora: string
-    caja_fk: number
-    esp32_fk: string
-}
+import { Naranja } from "../../shared/models/Naranja";
 
 export const Home = () => {
     const navigate = useNavigate();
-    const { addConnection } = useWebSocket()
-    const [esp32, setEsp32] = useState<Esp32[]>([])
-    const [naranjas, setNaranjas] = useState<Naranja[]>([])
-    const { addNaranja, naranjasStore } = useNaranjasStore()
-    const { consultLotes, lotes } = useGetLotes()
-    // Obtener usuario del localStorage para verificar permisos
-    const [lotesUser, setLotesUser] = useState<Lote[]>([])
+    const { addConnection } = useWebSocket();
+    const [esp32, setEsp32] = useState<Esp32[]>([]);
+    const { addNaranja, naranjasStore } = useNaranjasStore();
+    const { consultLotes, lotes } = useGetLotes(AuthService.getUserData()?.id || 0);
+    const [lotesUser, setLotesUser] = useState<Lote[]>([]);
     const userJson = localStorage.getItem('user');
-    const user = userJson ? JSON.parse(userJson) : null;
+    const user = useMemo(() => userJson ? JSON.parse(userJson) : null, [userJson]);
     const isOwner = user && user.rol === 'dueño';
-    const { espsResult, consultEspsId } = useGetEspsId()
-    const [esp32Lenght, setEsp32Lenght] = useState<number>(0)
+    const { espsResult, consultEspsId } = useGetEspsId();
+    const [esp32Length, setEsp32Length] = useState<number>(0);
 
+    // Single initialization effect
     useEffect(() => {
-        const socket = addConnection("ws://52.4.21.111:8085/naranjas/")
+        // Initialize data
+        const initializeData = async () => {
+            if (user?.id) {
+                await consultEspsId(user.id);
+                await consultLotes();
+            }
+        };
 
-        socket.onopen = (event) => {
-            console.log("message", event)
-        }
-        socket.onmessage = (message: any) => {
-            addNaranja(message.data)
-        }
-        consultEspsId(user.id)
-        consultLotes()
-        console.log("lotes", lotes)
-        const lotesFiltred = lotes.filter((item: Lote) => item.user_id === user.id)
-        setLotesUser(lotesFiltred)
-    }, [])
+        // Initialize WebSocket
+        const socket = addConnection("ws://52.4.21.111:8085/naranjas/");
 
+        socket.onopen = () => {
+            console.log("Connected to naranjas WebSocket");
+        };
+
+        socket.onmessage = (message: MessageEvent) => {
+            try {
+                const naranja = JSON.parse(message.data);
+                if (naranja.id && naranja.peso && naranja.caja_fk) {
+                    addNaranja(naranja);
+                }
+            } catch (error) {
+                console.error("Error processing WebSocket message:", error);
+            }
+        };
+
+        initializeData();
+
+        // Cleanup
+        return () => {
+            socket.close();
+            console.log("WebSocket connection closed");
+        };
+    }, []); // Empty dependency array for initialization
+
+    // Handle ESP32 data updates
     useEffect(() => {
-        setEsp32(espsResult)
-    }, [])
+        if (espsResult) {
+            setEsp32(espsResult);
+            setEsp32Length(espsResult.length);
+        }
+    }, [espsResult]);
+
+    // Handle lotes updates
+    useEffect(() => {
+        if (lotes && user) {
+            const filteredLotes = lotes.filter(
+                (item: Lote) => item.user_id === user.id
+            );
+            setLotesUser(filteredLotes);
+        }
+    }, [lotes, user]);
 
     return (
         <div className="min-h-screen flex flex-col bg-amber-50">
@@ -68,7 +92,7 @@ export const Home = () => {
                             label="Comenzar"
                             icon="pi pi-arrow-right"
                             className="p-button-lg"
-                            onClick={() => {navigate("/cajas/create")}}
+                            onClick={() => { navigate("/cajas/create") }}
                         />
                     </div>
                     <div className="md:w-1/2 flex justify-center">
@@ -76,7 +100,7 @@ export const Home = () => {
                             src="/naranjas.png"
                             alt="Ilustración de naranjas"
                             style={{ width: "350px", height: "350px" }}
-    
+
                         />
                     </div>
                 </div>
@@ -141,14 +165,14 @@ export const Home = () => {
                             <div className="text-amber-800">Lotes en existencia: </div>
                         </div>
                         <div className="bg-white p-6 rounded-lg shadow">
-                            <div className="text-4xl font-bold text-amber-500 mb-2">{esp32Lenght}</div>
+                            <div className="text-4xl font-bold text-amber-500 mb-2">{esp32Length}</div>
                             <div className="text-amber-800">Recolectores Activos</div>
                         </div>
                         <div className="bg-white p-6 rounded-lg shadow">
                             <div className="text-4xl font-bold text-amber-500 mb-2">{naranjasStore.length}</div>
                             <div className="text-amber-800">Naranjas totales: </div>
                         </div>
-                        
+
                     </div>
                 </div>
             </section>

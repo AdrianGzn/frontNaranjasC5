@@ -12,6 +12,7 @@ import AltaDeEsp from './features/esp32/ui/pages/altaDeEsp.page.tsx';
 import StadisticsCajas from './features/caja/ui/pages/stadisticsCajas.page.tsx';
 import LoteDetails from './presentation/pages/LoteDetails.tsx';
 import DashboardLotes from './presentation/pages/DashboardLotes.tsx';
+import { NaranjasMonitor } from './presentation/pages/NaranjasMonitor.tsx';
 
 function App() {
 
@@ -27,6 +28,7 @@ function App() {
           <Route path="/lotes/detalle/:id" element={<LoteDetails />} />
           <Route path='/esp/alta' element={<AltaDeEsp />}></Route>
           <Route path='/dashboard-lotes' element={<DashboardLotes />} />
+          <Route path='/naranjas' element={<NaranjasMonitor />} />
           <Route element={<ProtectedRoute allowedRoles={['dueño']} />}>
             <Route path='/users' element={<Users />} />
           </Route>

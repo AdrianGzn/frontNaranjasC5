@@ -39,12 +39,13 @@ export const Navbar = () => {
                                     onClick={() => navigate("/home")}
                                 />
                             </li>
+                            {/*  Naranjas en websocket */}
                             <li>
                                 <Button
-                                    label="Cajas"
-                                    icon="pi pi-box"
+                                    label="Naranjas"
+                                    icon="pi pi-table"
                                     className="p-button-outlined p-button-sm"
-                                    onClick={() => navigate("/cajas/create")}
+                                    onClick={() => navigate("/naranjas")}
                                 />
                             </li>
                             <li>
@@ -53,14 +54,6 @@ export const Navbar = () => {
                                     icon="pi pi-list"
                                     className="p-button-outlined p-button-sm"
                                     onClick={() => navigate("/lotes")}
-                                />
-                            </li>
-                            <li>
-                                <Button
-                                    label="Módulos ESP32"
-                                    icon="pi pi-th-large"
-                                    className="p-button-outlined p-button-sm"
-                                    onClick={() => navigate("/esp/alta")}
                                 />
                             </li>
                             {/* <li>
@@ -93,7 +86,7 @@ export const Navbar = () => {
                                 <li>
                                     <Button
                                         label="ESP32"
-                                        icon="pi pi-cog"
+                                        icon="pi pi-th-large"
                                         className="p-button-outlined p-button-sm"
                                         onClick={() => navigate("/esp/alta")}
                                     />
