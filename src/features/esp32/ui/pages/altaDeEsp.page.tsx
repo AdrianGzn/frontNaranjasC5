@@ -9,12 +9,15 @@ import TableViewEsps from "../components/listEsps.component";
 import { Button } from "primereact/button";
 import useGetEspsId from "../../infrastructure/getEsp32IdController";
 import { Toast } from 'primereact/toast';
+import { Dialog } from 'primereact/dialog';
 
 export default function AltaDeEsp() {
     const [esps, setEsps] = useState<Esp32[]>([]);
     const [userData, setUserData] = useState<LoginResponse | null>(null);
     const [update, setUpdate] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [showConfigDialog, setShowConfigDialog] = useState<boolean>(false);
+    const [newEspId, setNewEspId] = useState<string>('');
     const toast = useRef<Toast>(null);
 
     const { espsResult, consultEspsId } = useGetEspsId();
@@ -32,19 +35,27 @@ export default function AltaDeEsp() {
             return;
         }
 
-        let newEsp: Esp32 = { id: "", id_propietario: userData.user.id };
+        let newEsp: Esp32 = {
+            id: "",
+            id_propietario: userData.user.id,
+            status: "esperando" // Agregar estado por defecto
+        };
 
         try {
             setIsLoading(true);
-            const result = await createEsps(newEsp);
+            await createEsps(newEsp);
             setUpdate(prev => !prev);
 
+            // Mostrar toast simplificado
             toast.current?.show({
                 severity: 'success',
-                summary: 'ESP Creada',
-                detail: 'La ESP ha sido añadida correctamente',
+                summary: 'ESP32 Registrada',
+                detail: 'El dispositivo ha sido añadido correctamente',
                 life: 3000
             });
+
+            // Mostrar diálogo con instrucciones sin referencia al ID
+            setShowConfigDialog(true);
         } catch (error) {
             console.error("Error al crear la esp:", error);
 
@@ -122,6 +133,42 @@ export default function AltaDeEsp() {
                     </div>
                     <TableViewEsps handleDelete={handleDelete} esps={esps} />
                 </div>
+                <Dialog
+                    header="Configuración de su nuevo dispositivo ESP32"
+                    visible={showConfigDialog}
+                    style={{ width: '500px' }}
+                    onHide={() => setShowConfigDialog(false)}
+                    footer={
+                        <div>
+                            <Button
+                                label="Entendido"
+                                icon="pi pi-check"
+                                onClick={() => setShowConfigDialog(false)}
+                                autoFocus
+                            />
+                        </div>
+                    }
+                >
+                    <div className="flex flex-col gap-4">
+                        <p className="text-amber-700">
+                            <i className="pi pi-info-circle mr-2 text-amber-500 text-xl"></i>
+                            Su dispositivo ESP32 ha sido registrado exitosamente.
+                        </p>
+
+                        <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
+                            <h3 className="text-lg font-semibold text-amber-800 mb-2">Próximos pasos:</h3>
+                            <ol className="list-decimal pl-5 space-y-2">
+                                <li>Por favor comuníquese con nuestro departamento técnico para la configuración.</li>
+                                <li>Envíe un correo a <span className="font-semibold">soporte@naranjas.com</span> incluyendo su información de contacto.</li>
+                                <li>O llame al teléfono <span className="font-semibold">(55) 1234-5678</span> en horario de atención.</li>
+                            </ol>
+                        </div>
+
+                        <p className="italic text-sm text-amber-600">
+                            Es fundamental completar la configuración para que su dispositivo funcione correctamente con nuestro sistema.
+                        </p>
+                    </div>
+                </Dialog>
             </Dashboard>
         </div>
     );

@@ -22,6 +22,8 @@ import { useCajasStore } from "../../../../data/cajasStore";
 import useGetEspsId from "../../../esp32/infrastructure/getEsp32IdController";
 import { getEsp32Id } from "../../../esp32/application/getEsp32IsUseCase";
 import { AuthService, StoredUser } from "../../../../shared/hooks/auth_user.service";
+import { useNaranjasStore } from "../../../../data/naranjaStore";
+import { Naranja } from "../../../../shared/models/Naranja";
 
 export default function CreateNewCajas() {
   const [size, setSize] = useState<'small' | 'large' | 'normal' | undefined>('small');
@@ -41,79 +43,94 @@ export default function CreateNewCajas() {
   const { espsResult, consultEspsId } = useGetEspsId();
   const { usersResult, consultUsers } = useGetUsers();
   const [data, setData] = useState<any[]>([])
+  const { addNaranja } = useNaranjasStore();
+  const [naranjas, setNaranjas] = useState<Naranja[]>([]);
   const sizeOptions = [
     { label: 'Small', value: 'small' },
     { label: 'Medium', value: 'normal' },
     { label: 'Large', value: 'large' }
   ];
+
+  // Initial data loading
   useEffect(() => {
-    const userData = AuthService.getUserData()
-    console.log("user data", userData)
+    const userData = AuthService.getUserData();
     if (userData) {
       setDataUser(userData);
-      const id = userData.id;
-      consultEspsId(id)
+      consultEspsId(userData.id);
       consultUsers();
       consultCajas();
-      setData(cajasResult)
-      console.log("esp32 get it", espsResult)
     }
   }, []);
 
   useEffect(() => {
-
-    if (dataUser) {
-      //esps del jefe
-      let filteredEsps = espsResult.filter((esp: Esp32) => esp.id_propietario === dataUser.id_jefe)
-      console.log("esp32 filtreds", filteredEsps)
+    if (dataUser && cajasResult && espsResult && usersResult) { // Add checks for all required data
+      // Filter ESP32s for supervisor
+      const filteredEsps = espsResult.filter((esp: Esp32) =>
+        esp.id_propietario === dataUser.id_jefe
+      );
       setEsps(filteredEsps);
 
-      //Usuarios con el mismo jefe
+      // Filter users with same supervisor
+      const filteredUsers = usersResult.filter((user: User) =>
+        user.idJefe === dataUser.id_jefe
+      );
+      setUsers(filteredUsers);
 
-      let filteredUsers = usersResult.filter((user: User) => user.idJefe === dataUser.id_jefe)
-      console.log("users", filteredUsers)
-      setUsers(filteredUsers)
-
-      //cajas "cargando" del usuario
-      console.log("cajas result", cajasResult)
-
-      let cajasFiltered = cajasResult.filter((myCaja: Caja) => myCaja.estado === 'CARGANDO' && myCaja.encargado_fk === dataUser.id)
+      // Filter loading cajas
+      const cajasFiltered = cajasResult.filter((myCaja: Caja) =>
+        myCaja.estado === ''
+      );
       setCajasCargando(cajasFiltered);
 
-      //todas las cajas del jefe
+      // Filter supervisor's cajas and update store
       const cajasJefe = cajasResult.filter((myCaja: Caja) =>
-        esps.some((esp) => esp.id === myCaja.esp32Fk)
+        filteredEsps.some(esp => esp.id === myCaja.esp32Fk)
       );
-      cajasJefe.map((item) => {
-        cajasStore.push(item)
-      })
+
+      // Clear and update store instead of pushing
+      if (cajasJefe.length > 0) {
+        cajasStore.splice(0, cajasStore.length, ...cajasJefe);
+      }
     }
-  }, [cajasResult, espsResult, usersResult, encargadoId, dataUser, actualizar])
+  }, [cajasResult, espsResult, usersResult, dataUser]);
 
 
-  const onCreate = (id: number | undefined) => {  //handler para crear
-    console.log(id);
-    setEncargadoId(id);
+  const onCreate = async (id: number | undefined) => {
+    try {
+      setEncargadoId(id);
 
-    const newLote: Lote = { id: 0, fecha: '', observaciones: '', user_id: dataUser?.id };
-    console.log("new lote", newLote)
-    createLote(newLote).then(() => { //crea mi lote
-      if (lote) {
-        setIdLote(lote.id);
+      const newLote: Lote = {
+        id: 0,
+        fecha: new Date().toISOString(), // Add proper date
+        observaciones: '',
+        user_id: dataUser?.id
+      };
 
-        const nuevasCajas: Caja[] = [
-          { id: 0, descripcion: 'CARGANDO', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: id, cantidad: 0, estado: '', esp32Fk: '' },
-          { id: 0, descripcion: 'CARGANDO', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: id, cantidad: 0, estado: '', esp32Fk: '' },
-          { id: 0, descripcion: 'CARGANDO', peso_total: 0, precio: 0, lote_fk: idLote, encargado_fk: id, cantidad: 0, estado: '', esp32Fk: '' }
-        ];
+      await createLote(newLote);
+
+      if (lote?.id) {
+        const nuevasCajas: Caja[] = Array(3).fill(null).map(() => ({
+          id: 0,
+          descripcion: 'cargando',
+          peso_total: 0,
+          precio: 0,
+          lote_fk: lote.id,
+          encargado_fk: id,
+          cantidad: 0,
+          estado: '',
+          esp32Fk: ''
+        }));
 
         setCajasCargando(nuevasCajas);
-        nuevasCajas.forEach((caja) => createCaja(caja)); //crea mis cajas
+        await Promise.all(nuevasCajas.map(caja => createCaja(caja)));
       } else {
-        console.log('lote no creado');
+        throw new Error('Error al crear el lote');
       }
-    });
-  }
+    } catch (error) {
+      console.error('Error creating lote and cajas:', error);
+      // Add proper error handling/user feedback here
+    }
+  };
 
   const onStop = (id: number | undefined) => { // para detener la carga en las cajas
     console.log(id);
@@ -152,6 +169,44 @@ export default function CreateNewCajas() {
     return () => {
       socket.close()
       console.log("ws close");
+    }
+  }, [])
+
+  // WebSocket para naranjas
+  useEffect(() => {
+    const socket: WebSocket = addConnection("ws://52.4.21.111:8085/naranjas/")
+
+    socket.onopen = (message) => {
+      console.log("Conectado al WebSocket de naranjas", message)
+    }
+
+    socket.onmessage = (message: MessageEvent) => {
+      try {
+        const naranja: Naranja = JSON.parse(message.data);
+        // Validar que los datos sean correctos
+        if (naranja.id && naranja.peso && naranja.caja_fk) {
+          addNaranja(naranja);
+          setNaranjas(prev => [...prev, naranja]);
+
+          // Actualizar la caja correspondiente si es necesario
+          const cajaAfectada = cajasStore.find(caja => caja.id === naranja.caja_fk);
+          if (cajaAfectada) {
+            cajaAfectada.cantidad = (cajaAfectada.cantidad || 0) + 1;
+            cajaAfectada.peso_total = (cajaAfectada.peso_total || 0) + naranja.peso;
+          }
+        }
+      } catch (error) {
+        console.error('Error al procesar naranja:', error);
+      }
+    }
+
+    socket.onerror = (error) => {
+      console.error('Error en WebSocket de naranjas:', error);
+    }
+
+    return () => {
+      socket.close();
+      console.log("WebSocket de naranjas cerrado");
     }
   }, [])
 

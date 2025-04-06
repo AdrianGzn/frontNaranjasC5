@@ -38,6 +38,12 @@ export default class APIRepositoryEsps implements IEsp32 {
     return response.json()
   }
 
+  async GetEspIdWaiting(id: number): Promise<Esp32[]> {
+    const response = await fetch(`${this.espsURL}/propietario/${id}/waiting`);
+    if (!response.ok) throw new Error("Error al consultar ESP32 en espera");
+    return response.json();
+  }
+
   async GetEsps(): Promise<Esp32[]> {
     const response = await fetch(`${this.espsURL}/`);
     if (!response.ok) throw new Error("Error al consultar las esps");

@@ -26,6 +26,14 @@ export default function TableViewEsps({ esps, handleDelete }: any) {
                 <div className="flex flex-col h-full">
                     <div className="mb-3">
                         <h3 className="text-xl font-bold text-amber-800 mb-1">Id de la Esp: {esp.id || 'Id no encontrada'}</h3>
+                        <div className="flex items-center mt-2">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${esp.status === 'activo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                }`}>
+                                <span className={`w-2 h-2 mr-1 rounded-full ${esp.status === 'activo' ? 'bg-green-400' : 'bg-red-400'
+                                    }`}></span>
+                                {esp.status || 'Desconocido'}
+                            </span>
+                        </div>
                     </div>
                     <div className="pt-3 mt-auto border-t border-amber-100">
                         <Button
@@ -45,9 +53,19 @@ export default function TableViewEsps({ esps, handleDelete }: any) {
             <div className="flex flex-col md:flex-row border border-amber-200 rounded-lg shadow-sm hover:shadow-md transition-shadow bg-white p-4">
                 <div className="flex-1">
                     <div className="flex flex-col md:flex-row gap-2 md:items-center justify-between">
-                        <span className="text-sm text-amber-700">
-                            <i className="pi pi-id-card mr-2"></i> Id de la Esp: {esp.id || 'Id no encontrada'}
-                        </span>
+                        <div>
+                            <span className="text-sm text-amber-700">
+                                <i className="pi pi-id-card mr-2"></i> Id de la Esp: {esp.id || 'Id no encontrada'}
+                            </span>
+                            <div className="flex items-center mt-2">
+                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${esp.status === 'activo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                    }`}>
+                                    <span className={`w-2 h-2 mr-1 rounded-full ${esp.status === 'activo' ? 'bg-green-400' : 'bg-red-400'
+                                        }`}></span>
+                                    {esp.status || 'Desconocido'}
+                                </span>
+                            </div>
+                        </div>
                         <Button
                             label="Eliminar"
                             icon="pi pi-trash"
