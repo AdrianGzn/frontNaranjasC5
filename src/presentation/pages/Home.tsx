@@ -66,7 +66,8 @@ export const Home = () => {
     useEffect(() => {
         if (espsResult) {
             setEsp32(espsResult);
-            setEsp32Length(espsResult.length);
+            // Contar solo ESP32 activas
+            setEsp32Length(espsResult.filter(esp => esp.status === 'activo').length);
         }
     }, [espsResult]);
 

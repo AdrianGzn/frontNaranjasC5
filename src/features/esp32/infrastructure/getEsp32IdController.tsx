@@ -27,5 +27,23 @@ export default function useGetEspsId() {
     }
   }, []);
 
-  return { espsResult, loading, error, consultEspsId };
+  const consultEspsIdWaiting = useCallback(async (id: number | undefined) => {
+    if (!id) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const repository: IEsp32 = new APIRepositoryEsps();
+      const getEspsUseCase = new getEsp32Id(repository);
+      const resultEsps = await getEspsUseCase.runWaiting(id);
+      setEspsResult(resultEsps);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { espsResult, loading, error, consultEspsId, consultEspsIdWaiting };
 }

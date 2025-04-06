@@ -32,7 +32,7 @@ export default function Lotes() {
     const [availableEsp32s, setAvailableEsp32s] = useState<Esp32[]>([]);
 
     // Obtener las ESP32 del usuario
-    const { espsResult, loading: loadingEsps, error: errorEsps, consultEspsId } = useGetEspsId();
+    const { espsResult, loading: loadingEsps, error: errorEsps, consultEspsId, consultEspsIdWaiting } = useGetEspsId();
 
     useEffect(() => {
         consultLotes()
@@ -43,19 +43,17 @@ export default function Lotes() {
         setLotes(lotesOriginales || []);
     }, [lotesOriginales]);
 
-    // Añadir useEffect para cargar ESP32s
+    // Añadir useEffect para cargar ESP32s con status 'esperando'
     useEffect(() => {
         const userId = AuthService.getUserData()?.id;
         if (userId) {
-            consultEspsId(userId);
+            consultEspsIdWaiting(userId);
         }
     }, []);
 
     // Actualizar lista de ESP32s disponibles
     useEffect(() => {
-        if (espsResult && espsResult.length > 0) {
-            setAvailableEsp32s(espsResult);
-        }
+        setAvailableEsp32s(espsResult || []);
     }, [espsResult]);
 
     // Crear un nuevo lote con el caso de uso y el repositorio
@@ -115,6 +113,12 @@ export default function Lotes() {
             setObservaciones('');
 
             showToast('success', 'Éxito', `Lote #${response.lote.id} creado exitosamente con ${response.cajas.length} cajas`);
+
+            // Refrescar la lista de ESP32s disponibles
+            if (user.id) {
+                consultEspsIdWaiting(user.id);
+            }
+
         } catch (error: any) {
             showToast('error', 'Error', error.message || 'Error al crear el lote');
         }
@@ -426,6 +430,15 @@ export default function Lotes() {
                         showClear
                         filter
                         required
+                        itemTemplate={(option: Esp32) => (
+                            <div className="flex justify-between items-center">
+                                <span>{option.id}</span>
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    <span className="w-2 h-2 mr-1 rounded-full bg-yellow-400"></span>
+                                    {option.status}
+                                </span>
+                            </div>
+                        )}
                     />
                     {availableEsp32s.length === 0 && (
                         <small className="text-red-500 mt-1 block">
