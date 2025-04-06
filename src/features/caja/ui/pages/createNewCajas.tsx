@@ -137,7 +137,7 @@ export default function CreateNewCajas() {
     setEncargadoId(id);
 
     consultCajas();
-    let misCajas: Caja[] = cajasResult.filter((miCaja: Caja) => miCaja.estado === 'cargando' && miCaja.encargado_fk === encargadoId)
+    let misCajas: Caja[] = cajasResult.filter((miCaja: Caja) => miCaja.estado === '')
     misCajas.forEach((caja: Caja) => {
       caja.id = caja.id,
         caja.descripcion = caja.descripcion,
@@ -152,8 +152,6 @@ export default function CreateNewCajas() {
     misCajas.forEach((caja: Caja) => asignCaja(caja.id, caja));
     setActialuzar(!actualizar)
   }
-
-
 
   //websocket
   useEffect(() => {
@@ -218,7 +216,6 @@ export default function CreateNewCajas() {
         <div className="w-full h-full flex flex-col items-center">
           <CajasCargar suggestions={users} onCreate={onCreate} onStop={onStop} esp32={espsResult}></CajasCargar>
           <CajasCargando cajas={cajasCargando}></CajasCargando>
-          <TableCajas size={size} setSize={setSize} sizeOptions={sizeOptions} cajas={cajasStore} ></TableCajas>
         </div>
       </Dashboard>
     </div>
