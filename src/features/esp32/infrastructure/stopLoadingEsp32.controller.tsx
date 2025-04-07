@@ -1,5 +1,4 @@
 import { useState } from "react";
-import Esp32 from "../domain/esp32.entity";
 
 export default function useStopLoadingEsp32() {
     const [loading, setLoading] = useState<boolean>(false);

@@ -1,5 +1,4 @@
 import { DataView, DataViewLayoutOptions } from 'primereact/dataview';
-import { Dropdown } from 'primereact/dropdown';
 import Esp32 from '../../domain/esp32.entity';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';

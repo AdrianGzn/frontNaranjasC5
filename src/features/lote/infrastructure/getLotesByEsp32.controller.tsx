@@ -1,5 +1,4 @@
 import { useState } from "react";
-import APIRepositoryLote from "./apiLote.repository";
 import Lote from "../domain/lote.entity";
 
 export default function useGetLotesByEsp32() {
@@ -12,8 +11,7 @@ export default function useGetLotesByEsp32() {
         setError(null);
 
         try {
-            const repository = new APIRepositoryLote();
-            // Suponiendo que hay un endpoint para obtener lotes por ESP32.
+                 // Suponiendo que hay un endpoint para obtener lotes por ESP32.
             // Si no existe, deberías crear uno o usar el endpoint adecuado.
             const response = await fetch(`${import.meta.env.VITE_API_URL}/lotes/esp32/${esp32Id}`);
             

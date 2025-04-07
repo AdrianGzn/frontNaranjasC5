@@ -1,5 +1,4 @@
 import { useState } from "react";
-import Lote from "../domain/lote.entity";
 
 export default function useFinishLote() {
     const [loading, setLoading] = useState<boolean>(false);

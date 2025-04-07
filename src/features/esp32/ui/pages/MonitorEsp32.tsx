@@ -7,37 +7,22 @@ import { Toast } from "primereact/toast";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import Dashboard from "../../../../shared/ui/pages/dashboard.component";
 import useGetEspsId from "../../infrastructure/getEsp32IdController";
-import useStopLoadingEsp32 from "../../infrastructure/stopLoadingEsp32.controller";
-import useFinishLote from "../../../lote/infrastructure/finish_lote.controller";
-import useGetLotes from "../../../lote/infrastructure/consult_lotes.controller";
 import Esp32 from "../../domain/esp32.entity";
 import { AuthService } from "../../../../shared/hooks/auth_user.service";
-import Lote from "../../../lote/domain/lote.entity";
 
 export default function MonitorEsp32() {
     const toast = useRef<Toast>(null);
     const [esp32List, setEsp32List] = useState<Esp32[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [activeLotesMap, setActiveLotesMap] = useState<Record<string, number>>({});
 
     const userId = AuthService.getUserData()?.id || 0;
     const { espsResult, consultEspsId } = useGetEspsId();
-    const { stopLoading } = useStopLoadingEsp32();
-    const { finishLote } = useFinishLote();
-    const { lotes, consultLotes } = useGetLotes(userId);
 
     // Cargar datos iniciales
     useEffect(() => {
-        const loadData = async () => {
-            if (userId) {
-                await Promise.all([
-                    consultEspsId(userId),
-                    consultLotes()
-                ]);
-            }
-        };
-
-        loadData();
+        if (userId) {
+            consultEspsId(userId);
+        }
     }, []);
 
     // Actualizar la lista cuando cambian los resultados
@@ -48,42 +33,9 @@ export default function MonitorEsp32() {
         }
     }, [espsResult]);
 
-    // Mapear los lotes activos a sus ESP32
-    useEffect(() => {
-        if (lotes && espsResult) {
-            const lotesMap: Record<string, number> = {};
-
-            // Filtrar lotes que no están terminados
-            const activeLotes = lotes.filter(lote => lote.estado !== 'terminado');
-
-            // Para cada ESP32 activa, buscar un lote asociado
-            espsResult
-                .filter(esp => esp.status === 'activo')
-                .forEach(esp => {
-                    // Buscar el lote más reciente para esta ESP32
-                    // Asumimos que hay alguna propiedad en el lote que indica a qué ESP32 está asociado
-                    // Si no existe tal propiedad, necesitamos cambiar este enfoque
-                    const lotesForEsp = activeLotes.filter(lote => lote.esp32_fk === esp.id);
-
-                    if (lotesForEsp.length > 0) {
-                        // Tomar el lote más reciente
-                        const newestLote = lotesForEsp.reduce((newest, current) => {
-                            const currentDate = new Date(current.fecha).getTime();
-                            const newestDate = new Date(newest.fecha).getTime();
-                            return currentDate > newestDate ? current : newest;
-                        }, lotesForEsp[0]);
-
-                        lotesMap[esp.id] = newestLote.id;
-                    }
-                });
-
-            setActiveLotesMap(lotesMap);
-        }
-    }, [lotes, espsResult]);
-
     const confirmStopLoading = (esp32: Esp32) => {
         confirmDialog({
-            message: `¿Está seguro de que desea detener la carga en ESP32 ${esp32.id}? Esta acción también finalizará el lote asociado.`,
+            message: `¿Está seguro de que desea detener la carga en ESP32 ${esp32.id}?`,
             header: 'Confirmar detención',
             icon: 'pi pi-exclamation-triangle',
             acceptClassName: 'p-button-danger',
@@ -95,28 +47,19 @@ export default function MonitorEsp32() {
         try {
             setLoading(true);
 
-            // Use the new simplified endpoint to update ESP32 status
             const response = await fetch(`${import.meta.env.VITE_API_URL}/esp32/${esp32.id}/status`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    status: 'esperando'
-                })
+                body: JSON.stringify({ status: 'esperando' })
             });
 
             if (!response.ok) {
                 throw new Error('Error al actualizar el estado de la ESP32');
             }
 
-            // Actualizar los datos
-            if (userId) {
-                await Promise.all([
-                    consultEspsId(userId),
-                    consultLotes()
-                ]);
-            }
+            await consultEspsId(userId);
 
             toast.current?.show({
                 severity: 'success',
@@ -137,7 +80,6 @@ export default function MonitorEsp32() {
         }
     };
 
-    // Templates para DataTable
     const statusBodyTemplate = (rowData: Esp32) => {
         const colorClass =
             rowData.status === 'activo' ? 'bg-green-100 text-green-800' :
@@ -172,20 +114,6 @@ export default function MonitorEsp32() {
         );
     };
 
-    const loteInfoBodyTemplate = (rowData: Esp32) => {
-        const loteId = activeLotesMap[rowData.id];
-
-        if (rowData.status === 'activo' && loteId) {
-            return (
-                <span className="text-blue-600 font-medium">
-                    Lote #{loteId}
-                </span>
-            );
-        }
-
-        return <span className="text-gray-500">No hay lote activo</span>;
-    };
-
     return (
         <Dashboard>
             <div className="p-4">
@@ -208,7 +136,6 @@ export default function MonitorEsp32() {
                     >
                         <Column field="id" header="ID ESP32" sortable />
                         <Column field="status" header="Estado" body={statusBodyTemplate} sortable />
-                        <Column header="Lote Activo" body={loteInfoBodyTemplate} />
                         <Column body={actionBodyTemplate} header="Acciones" style={{ width: '8rem', textAlign: 'center' }} />
                     </DataTable>
                 </Card>

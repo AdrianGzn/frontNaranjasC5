@@ -10,7 +10,6 @@ import { useWebSocket } from "../../shared/hooks/websocket.provider";
 import { useNaranjasStore } from "../../data/naranjaStore";
 import useGetLotes from "../../features/lote/infrastructure/consult_lotes.controller";
 import Lote from "../../features/lote/domain/lote.entity";
-import { Naranja } from "../../shared/models/Naranja";
 
 export const Home = () => {
     const navigate = useNavigate();
@@ -27,6 +26,7 @@ export const Home = () => {
 
     // Single initialization effect
     useEffect(() => {
+        console.log("esp32", esp32)
         // Initialize data
         const initializeData = async () => {
             if (user?.id) {

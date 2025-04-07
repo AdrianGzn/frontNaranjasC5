@@ -1,4 +1,4 @@
-import { User } from "../../features/users/domain/user.entity";
+
 
 export interface StoredUser {
     name: string;

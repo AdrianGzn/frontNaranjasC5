@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Dashboard from "../../../../shared/ui/pages/dashboard.component";
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
-import TableCajas from "../components/tableCajas.component";
+// import TableCajas from "../components/tableCajas.component";
 import Caja from "../../domain/caja.entity";
 import CajasCargando from "../components/cajasCargando.component";
 import CajasCargar from "../components/cajaCargar.component";
@@ -11,45 +11,32 @@ import { useWebSocket } from "../../../../shared/hooks/websocket.provider";
 import { User } from "../../../users/domain/user.entity";
 import useCreateLote from "../../../lote/infrastructure/create_lote.controller";
 import useCreateCaja from "../../infrastructure/createCaja.controller";
-import Lote from "../../../lote/domain/lote.entity";
 import useGetCajas from "../../infrastructure/consultCajas.controller";
 import useAsignCaja from "../../infrastructure/asignCaja.controller";
-import useGetEsps from "../../../esp32/infrastructure/getEsps.controller";
+// import useGetEsps from "../../../esp32/infrastructure/getEsps.controller";
 import Esp32 from "../../../esp32/domain/esp32.entity";
-import { LoginResponse } from "../../../users/domain/LoginResponse";
 import useGetUsers from "../../../users/infrastructure/controllers/getAllUsersController";
 import { useCajasStore } from "../../../../data/cajasStore";
 import useGetEspsId from "../../../esp32/infrastructure/getEsp32IdController";
-import { getEsp32Id } from "../../../esp32/application/getEsp32IsUseCase";
 import { AuthService, StoredUser } from "../../../../shared/hooks/auth_user.service";
 import { useNaranjasStore } from "../../../../data/naranjaStore";
 import { Naranja } from "../../../../shared/models/Naranja";
+import { CreateLoteRequest } from "../../../lote/domain/CreateLoteRequest";
 
 export default function CreateNewCajas() {
-  const [size, setSize] = useState<'small' | 'large' | 'normal' | undefined>('small');
-  const { addConnection, messages } = useWebSocket();
+  const { addConnection } = useWebSocket();
   const [cajasCargando, setCajasCargando] = useState<Caja[]>([]);
   const [users, setUsers] = useState<User[]>([]);
-  const [encargadoId, setEncargadoId] = useState<number | undefined>(0);
-  const [idLote, setIdLote] = useState<number>(0)
-  const [esps, setEsps] = useState<Esp32[]>([])
   const [dataUser, setDataUser] = useState<StoredUser | null>(null)
   const { addCaja, cajasStore } = useCajasStore()
   const [actualizar, setActialuzar] = useState<boolean>(false);
   const { lote, createLote } = useCreateLote();
   const { createCaja } = useCreateCaja();
-  const { cajasResult, consultCajas, error, loading } = useGetCajas();
+  const { cajasResult, consultCajas } = useGetCajas();
   const { asignCaja } = useAsignCaja();
   const { espsResult, consultEspsId } = useGetEspsId();
   const { usersResult, consultUsers } = useGetUsers();
-  const [data, setData] = useState<any[]>([])
   const { addNaranja } = useNaranjasStore();
-  const [naranjas, setNaranjas] = useState<Naranja[]>([]);
-  const sizeOptions = [
-    { label: 'Small', value: 'small' },
-    { label: 'Medium', value: 'normal' },
-    { label: 'Large', value: 'large' }
-  ];
 
   // Initial data loading
   useEffect(() => {
@@ -68,7 +55,6 @@ export default function CreateNewCajas() {
       const filteredEsps = espsResult.filter((esp: Esp32) =>
         esp.id_propietario === dataUser.id_jefe
       );
-      setEsps(filteredEsps);
 
       // Filter users with same supervisor
       const filteredUsers = usersResult.filter((user: User) =>
@@ -97,16 +83,21 @@ export default function CreateNewCajas() {
 
   const onCreate = async (id: number | undefined) => {
     try {
-      setEncargadoId(id);
+      // Verifica que tengas al menos un ESP32 disponible
+      if (!espsResult || espsResult.length === 0) {
+        throw new Error('No hay dispositivos ESP32 disponibles');
+      }
 
-      const newLote: Lote = {
-        id: 0,
-        fecha: new Date().toISOString(), // Add proper date
-        observaciones: '',
-        user_id: dataUser?.id
+      // Crea un objeto CreateLoteRequest en lugar de Lote
+      const loteRequest: CreateLoteRequest = {
+        lote: {
+          observaciones: '',
+          user_id: dataUser?.id || 0
+        },
+        esp32_fk: espsResult[0].id // Usa el primer ESP32 disponible o añade lógica para seleccionar uno específico
       };
 
-      await createLote(newLote);
+      await createLote(loteRequest);
 
       if (lote?.id) {
         const nuevasCajas: Caja[] = Array(3).fill(null).map(() => ({
@@ -134,7 +125,6 @@ export default function CreateNewCajas() {
 
   const onStop = (id: number | undefined) => { // para detener la carga en las cajas
     console.log(id);
-    setEncargadoId(id);
 
     consultCajas();
     let misCajas: Caja[] = cajasResult.filter((miCaja: Caja) => miCaja.estado === '')
@@ -186,7 +176,6 @@ export default function CreateNewCajas() {
         // Validar que los datos sean correctos
         if (naranja.id && naranja.peso && naranja.caja_fk) {
           addNaranja(naranja);
-          setNaranjas(prev => [...prev, naranja]);
 
           // Actualizar la caja correspondiente si es necesario
           const cajaAfectada = cajasStore.find(caja => caja.id === naranja.caja_fk);

@@ -1,19 +1,15 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Chart } from 'primereact/chart';
 import { Card } from 'primereact/card';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Button } from 'primereact/button';
 import { Calendar } from 'primereact/calendar';
-import { Dropdown } from 'primereact/dropdown';
-import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import Dashboard from '../../shared/ui/pages/dashboard.component';
 import { AuthService } from '../../shared/hooks/auth_user.service';
 import useGetLotesDetailsByUserID from '../../features/lote/infrastructure/get_lotes_details_by_user.controller';
 import useGetLotesByDateRange from '../../features/lote/infrastructure/get_lotes_by_date_range.controller';
 import { LoteDetailsResponse } from '../../features/lote/domain/LoteDetailsResponse';
-import Caja from '../../features/caja/domain/caja.entity';
-
 export default function DashboardLotes() {
     const { lotesDetails, loading: loadingAll, error: errorAll, getLotesDetailsByUserID } = useGetLotesDetailsByUserID();
     const { lotesDetails: filteredLotesDetails, loading: loadingFiltered, error: errorFiltered, getLotesByDateRange } = useGetLotesByDateRange();

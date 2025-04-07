@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { GetEsps } from "../application/getEsp32.usecase";
 import IEsp32 from "../domain/esp32.repository";
 import APIRepositoryEsps from "./apiCaja.repository";
 import Esp32 from "../domain/esp32.entity";

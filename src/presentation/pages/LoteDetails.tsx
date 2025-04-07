@@ -1,13 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Chart } from 'primereact/chart';
 import { Card } from 'primereact/card';
-import { Divider } from 'primereact/divider';
 import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import Dashboard from '../../shared/ui/pages/dashboard.component';
 import useGetLoteDetails from '../../features/lote/infrastructure/get_lote_details.controller';
-import { LoteDetailsResponse } from '../../features/lote/domain/LoteDetailsResponse';
 
 export default function LoteDetails() {
     const { id } = useParams<{ id: string }>();

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CreateCaja } from "../application/create_caja.usecase";
 import ICaja from "../domain/caja.repository";
 import APIRepositoryCaja from "./apiCaja.repository";

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { DataView, DataViewLayoutOptions } from 'primereact/dataview';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
@@ -12,7 +12,6 @@ import Lote from '../../features/lote/domain/lote.entity';
 import ILote from '../../features/lote/domain/lote.repository';
 import APIRepositoryLote from '../../features/lote/infrastructure/apiLote.repository';
 import useGetLotes from '../../features/lote/infrastructure/consult_lotes.controller';
-import { CreateLote } from '../../features/lote/application/create_lote.usecase';
 import { AuthService } from '../../shared/hooks/auth_user.service';
 import useGetEspsId from '../../features/esp32/infrastructure/getEsp32IdController';
 import Esp32 from '../../features/esp32/domain/esp32.entity';
@@ -32,7 +31,7 @@ export default function Lotes() {
     const [availableEsp32s, setAvailableEsp32s] = useState<Esp32[]>([]);
 
     // Obtener las ESP32 del usuario
-    const { espsResult, loading: loadingEsps, error: errorEsps, consultEspsId, consultEspsIdWaiting } = useGetEspsId();
+    const { espsResult, consultEspsIdWaiting } = useGetEspsId();
 
     useEffect(() => {
         consultLotes()
@@ -58,7 +57,6 @@ export default function Lotes() {
 
     // Crear un nuevo lote con el caso de uso y el repositorio
     const repository: ILote = new APIRepositoryLote();
-    const createLoteUsecase = new CreateLote(repository);
 
     const [layout, setLayout] = useState<'grid' | 'list'>('grid');
     const [sortKey, setSortKey] = useState('');
@@ -289,15 +287,25 @@ export default function Lotes() {
     const sortedLotes = [...filteredLotes].sort((a, b) => {
         let valueA = a[sortField as keyof Lote];
         let valueB = b[sortField as keyof Lote];
-
+    
         // Manejar diferentes tipos de datos
         if (sortField === 'fecha') {
-            valueA = valueA ? new Date(valueA).getTime() : 0;
-            valueB = valueB ? new Date(valueB).getTime() : 0;
+            const dateA = valueA ? new Date(valueA as string).getTime() : 0;
+            const dateB = valueB ? new Date(valueB as string).getTime() : 0;
+            return sortOrder * (dateA - dateB);
         }
-
-        return sortOrder * ((valueA > valueB) ? 1 : -1);
+    
+        // Asegurar que no sean undefined
+        if (valueA === undefined || valueB === undefined) {
+            return 0;
+        }
+    
+        // Comparación general
+        if (valueA > valueB) return sortOrder * 1;
+        if (valueA < valueB) return sortOrder * -1;
+        return 0;
     });
+    
 
     const dialogFooter = (
         <div>

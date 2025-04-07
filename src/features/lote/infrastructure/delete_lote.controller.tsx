@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { DeleteLote } from "../application/delete_lote.usecase";
 import ILote from "../domain/lote.repository";
 import APIRepositoryLote from "./apiLote.repository";

@@ -32,6 +32,7 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
   const [messages, setMessages] = useState<WebsocketMessages>({});
 
   const addConnection = (url: string): WebSocket => {
+    console.log("messages", setMessages)
     const socket = new WebSocket(url);
     return socket;
   };

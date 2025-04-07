@@ -8,7 +8,6 @@ import { LoginUserUseCase } from "../../features/users/application/LoginUserUseC
 import { CreateUserUseCase } from "../../features/users/application/CreateUserUseCase";
 import { Toast } from "primereact/toast";
 import { Dialog } from "primereact/dialog";
-import { User } from "../../features/users/domain/user.entity";
 import { Dropdown } from "primereact/dropdown";
 import { AuthService } from "../../shared/hooks/auth_user.service";
 

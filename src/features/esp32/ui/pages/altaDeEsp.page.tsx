@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import Dashboard from "../../../../shared/ui/pages/dashboard.component";
 import Esp32 from "../../domain/esp32.entity";
-import useGetEsps from "../../infrastructure/getEsps.controller";
 import useCreateEsps from "../../infrastructure/createEsp32.controller";
 import { LoginResponse } from "../../../users/domain/LoginResponse";
 import useDeleteEsps from "../../infrastructure/deleteEsp.controller";
@@ -17,7 +16,6 @@ export default function AltaDeEsp() {
     const [update, setUpdate] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [showConfigDialog, setShowConfigDialog] = useState<boolean>(false);
-    const [newEspId, setNewEspId] = useState<string>('');
     const toast = useRef<Toast>(null);
 
     const { espsResult, consultEspsId } = useGetEspsId();

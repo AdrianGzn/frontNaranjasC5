@@ -12,7 +12,6 @@ import { ApiUserRepository } from '../../features/users/infrastructure/apiUser.r
 import { User } from '../../features/users/domain/user.entity';
 import Navbar from '../../shared/ui/components/Navbar';
 import { useNavigate } from 'react-router-dom';
-import { GetAllUsersUseCase } from '../../features/users/application/GetAllUsersUseCase';
 import { DeleteUserUseCase } from '../../features/users/application/DeleteUserUseCase';
 import { UpdateUserUseCase } from '../../features/users/application/UpdateUserUseCase';
 import { CreateUserUseCase } from '../../features/users/application/CreateUserUseCase';
@@ -27,8 +26,6 @@ export const Users = () => {
     const [loading, setLoading] = useState(true);
     const [showDialog, setShowDialog] = useState(false);
     const [editMode, setEditMode] = useState(false);
-    const [selectedUser, setSelectedUser] = useState<User | null>(null);
-
     // Formulario de usuario
     const [formUser, setFormUser] = useState<User>({
         id: 0,
@@ -44,7 +41,6 @@ export const Users = () => {
     const toast = useRef<Toast>(null);
     const navigate = useNavigate();
     const userRepository = new ApiUserRepository();
-    const getUsersUseCase = new GetAllUsersUseCase(userRepository)
     const deleteUserUseCase = new DeleteUserUseCase(userRepository)
     const updateUserUseCase = new UpdateUserUseCase(userRepository)
     const createUserUseCase = new CreateUserUseCase(userRepository)

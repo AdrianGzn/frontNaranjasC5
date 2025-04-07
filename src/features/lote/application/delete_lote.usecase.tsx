@@ -1,5 +1,4 @@
 import ILote from "../domain/lote.repository";
-import ResponseDeleteLote from "../domain/response_delete_lote";
 
 export class DeleteLote {
   private repository: ILote;
@@ -8,7 +7,7 @@ export class DeleteLote {
     this.repository = repository;
   }
 
-  async execute(id: number): Promise<ResponseDeleteLote> {
+  async execute(id: number): Promise<any> {
     return await this.repository.Delete(id);
   }
 }
