@@ -28,6 +28,7 @@ export default function StadisticsCajas() {
         } else {
             console.log('No hay usuario logueado');
         }
+        console.log("change in main");
         consultUsers();
     }, []);
 
